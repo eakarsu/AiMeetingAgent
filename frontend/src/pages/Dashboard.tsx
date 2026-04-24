@@ -10,9 +10,15 @@ import {
   ChartBarIcon,
   SparklesIcon,
   ArrowTrendingUpIcon,
-  UserGroupIcon,
   VideoCameraIcon,
-  PlayIcon
+  PlayIcon,
+  DocumentTextIcon,
+  EnvelopeIcon,
+  ChatBubbleLeftRightIcon,
+  ArrowPathIcon,
+  BellIcon,
+  Cog6ToothIcon,
+  DocumentDuplicateIcon
 } from '@heroicons/react/24/outline';
 
 interface Stats {
@@ -68,43 +74,34 @@ export default function Dashboard() {
   }, []);
 
   const statCards = [
-    {
-      name: 'Total Meetings',
-      value: stats?.totalMeetings || 0,
-      icon: CalendarIcon,
-      color: 'bg-blue-500',
-      href: '/meetings'
-    },
-    {
-      name: 'Upcoming Meetings',
-      value: stats?.upcomingMeetings || 0,
-      icon: ClockIcon,
-      color: 'bg-purple-500',
-      href: '/meetings'
-    },
-    {
-      name: 'Action Items',
-      value: stats?.totalActionItems || 0,
-      icon: ClipboardDocumentListIcon,
-      color: 'bg-orange-500',
-      href: '/action-items'
-    },
-    {
-      name: 'Completion Rate',
-      value: `${stats?.completionRate || 0}%`,
-      icon: CheckCircleIcon,
-      color: 'bg-green-500',
-      href: '/analytics'
-    }
+    { name: 'Total Meetings', value: stats?.totalMeetings || 0, icon: CalendarIcon, color: 'bg-blue-500', href: '/meetings' },
+    { name: 'Upcoming', value: stats?.upcomingMeetings || 0, icon: ClockIcon, color: 'bg-purple-500', href: '/meetings' },
+    { name: 'Action Items', value: stats?.totalActionItems || 0, icon: ClipboardDocumentListIcon, color: 'bg-orange-500', href: '/action-items' },
+    { name: 'Completion', value: `${stats?.completionRate || 0}%`, icon: CheckCircleIcon, color: 'bg-green-500', href: '/analytics' }
   ];
 
   const featureCards = [
-    { name: 'Meetings', description: 'Schedule and manage meetings', icon: CalendarIcon, href: '/meetings', color: 'text-blue-600 bg-blue-50' },
-    { name: 'Action Items', description: 'Track tasks and to-dos', icon: ClipboardDocumentListIcon, href: '/action-items', color: 'text-orange-600 bg-orange-50' },
-    { name: 'Decisions', description: 'Record meeting decisions', icon: CheckCircleIcon, href: '/decisions', color: 'text-green-600 bg-green-50' },
-    { name: 'AI Insights', description: 'AI-powered meeting analysis', icon: SparklesIcon, href: '/insights', color: 'text-purple-600 bg-purple-50' },
-    { name: 'Templates', description: 'Meeting templates library', icon: UserGroupIcon, href: '/templates', color: 'text-pink-600 bg-pink-50' },
-    { name: 'Analytics', description: 'Meeting performance metrics', icon: ChartBarIcon, href: '/analytics', color: 'text-indigo-600 bg-indigo-50' }
+    { name: 'Meetings', description: 'Schedule & manage', icon: CalendarIcon, href: '/meetings', color: 'text-blue-600 bg-blue-50' },
+    { name: 'Action Items', description: 'Track tasks', icon: ClipboardDocumentListIcon, href: '/action-items', color: 'text-orange-600 bg-orange-50' },
+    { name: 'Decisions', description: 'Log decisions', icon: CheckCircleIcon, href: '/decisions', color: 'text-green-600 bg-green-50' },
+    { name: 'Notes', description: 'Meeting notes', icon: DocumentTextIcon, href: '/notes', color: 'text-cyan-600 bg-cyan-50' },
+    { name: 'Follow-ups', description: 'Post-meeting tasks', icon: ArrowPathIcon, href: '/follow-ups', color: 'text-indigo-600 bg-indigo-50' },
+    { name: 'Transcripts', description: 'Meeting records', icon: ChatBubbleLeftRightIcon, href: '/transcripts', color: 'text-red-600 bg-red-50' },
+    { name: 'Templates', description: 'Meeting templates', icon: DocumentDuplicateIcon, href: '/templates', color: 'text-pink-600 bg-pink-50' },
+    { name: 'Calendar', description: 'Schedule events', icon: CalendarIcon, href: '/calendar', color: 'text-teal-600 bg-teal-50' },
+    { name: 'Analytics', description: 'Performance data', icon: ChartBarIcon, href: '/analytics', color: 'text-violet-600 bg-violet-50' },
+    { name: 'Integrations', description: 'Connect apps', icon: Cog6ToothIcon, href: '/integrations', color: 'text-gray-600 bg-gray-100' },
+    { name: 'Notifications', description: 'View alerts', icon: BellIcon, href: '/notifications', color: 'text-amber-600 bg-amber-50' },
+    { name: 'AI Insights', description: 'AI analysis', icon: SparklesIcon, href: '/insights', color: 'text-purple-600 bg-purple-50' }
+  ];
+
+  const aiFeatures = [
+    { name: 'AI Transcriber', description: 'Format & clean transcripts', icon: ChatBubbleLeftRightIcon, color: 'from-red-500 to-pink-500' },
+    { name: 'AI Summarizer', description: 'Generate meeting summaries', icon: DocumentTextIcon, color: 'from-blue-500 to-cyan-500' },
+    { name: 'Action Extractor', description: 'Find action items', icon: ClipboardDocumentListIcon, color: 'from-orange-500 to-amber-500' },
+    { name: 'Daily Planner', description: 'Optimize your schedule', icon: ClockIcon, color: 'from-indigo-500 to-purple-500' },
+    { name: 'Decision Logger', description: 'Extract decisions', icon: CheckCircleIcon, color: 'from-green-500 to-emerald-500' },
+    { name: 'Follow-up Drafter', description: 'Draft communications', icon: EnvelopeIcon, color: 'from-teal-500 to-cyan-500' },
   ];
 
   const handleCardClick = (href: string) => {
@@ -171,7 +168,7 @@ export default function Dashboard() {
       </div>
 
       {/* Stats Grid */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         {statCards.map((stat) => (
           <div
             key={stat.name}
@@ -189,21 +186,47 @@ export default function Dashboard() {
         ))}
       </div>
 
+      {/* AI Features Section */}
+      <div>
+        <div className="flex items-center justify-between mb-4">
+          <h2 className="text-lg font-semibold text-gray-900 flex items-center gap-2">
+            <SparklesIcon className="h-5 w-5 text-primary-600" />
+            AI-Powered Features
+          </h2>
+          <Link to="/ai-assistant" className="text-sm text-primary-600 hover:text-primary-700 font-medium">
+            Open AI Assistant →
+          </Link>
+        </div>
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">
+          {aiFeatures.map((feature) => (
+            <div
+              key={feature.name}
+              onClick={() => handleCardClick('/ai-assistant')}
+              className={`bg-gradient-to-br ${feature.color} rounded-xl p-4 text-white cursor-pointer hover:shadow-lg hover:scale-[1.02] transition-all`}
+            >
+              <feature.icon className="h-8 w-8 mb-2 opacity-90" />
+              <h3 className="font-semibold text-sm">{feature.name}</h3>
+              <p className="text-xs text-white/80 mt-1">{feature.description}</p>
+            </div>
+          ))}
+        </div>
+      </div>
+
       {/* Feature Cards */}
       <div>
         <h2 className="text-lg font-semibold text-gray-900 mb-4">Quick Access</h2>
-        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4">
+        <div className="grid grid-cols-3 sm:grid-cols-4 lg:grid-cols-6 gap-3">
           {featureCards.map((feature) => (
             <div
               key={feature.name}
               onClick={() => handleCardClick(feature.href)}
-              className="card-hover text-center py-6"
+              className="card-hover text-center py-4"
             >
-              <div className={`inline-flex p-3 rounded-lg ${feature.color} mb-3`}>
-                <feature.icon className="h-6 w-6" />
+              <div className={`inline-flex p-2.5 rounded-lg ${feature.color} mb-2`}>
+                <feature.icon className="h-5 w-5" />
               </div>
               <h3 className="font-medium text-gray-900 text-sm">{feature.name}</h3>
-              <p className="text-xs text-gray-500 mt-1">{feature.description}</p>
+              <p className="text-xs text-gray-500 mt-0.5">{feature.description}</p>
             </div>
           ))}
         </div>
@@ -290,9 +313,9 @@ export default function Dashboard() {
             <SparklesIcon className="h-8 w-8" />
           </div>
           <div className="flex-1">
-            <h3 className="text-lg font-semibold">AI Meeting Assistant</h3>
+            <h3 className="text-lg font-semibold">AI Meeting Assistant - Powered by Claude Haiku 4.5</h3>
             <p className="text-white/80">
-              Generate summaries, extract action items, and get insights from your meetings using AI.
+              Generate summaries, extract action items, log decisions, plan your day, and get insights from your meetings using AI.
             </p>
           </div>
           <ArrowTrendingUpIcon className="h-6 w-6" />

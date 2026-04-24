@@ -21,7 +21,7 @@ router.get('/', authenticateToken, async (req: AuthRequest, res: Response) => {
       orderBy: { createdAt: 'desc' }
     });
 
-    const userFollowUps = followUps.filter(f => f.meeting.userId === req.user!.id);
+    const userFollowUps = followUps.filter(f => !f.meeting || f.meeting.userId === req.user!.id);
     res.json(userFollowUps);
   } catch (error) {
     console.error('Get follow-ups error:', error);

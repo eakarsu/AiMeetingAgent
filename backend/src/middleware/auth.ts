@@ -21,6 +21,9 @@ export const authenticateToken = (req: AuthRequest, res: Response, next: NextFun
   try {
     const secret = process.env.JWT_SECRET || 'default-secret';
     const decoded = jwt.verify(token, secret) as { id: string; email: string; role: string };
+    if (!decoded.id) {
+      return res.status(403).json({ error: 'Invalid token payload — please log in again' });
+    }
     req.user = decoded;
     next();
   } catch (error) {

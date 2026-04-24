@@ -2,11 +2,11 @@
 
 # AI Meeting Agent - Start Script
 # This script will:
-# 1. Clean up used ports (3000 and 3001)
+# 1. Clean up used ports (3000 and 3001) - NOT port 5000
 # 2. Start PostgreSQL (if using Docker)
 # 3. Install dependencies
 # 4. Set up database and seed data
-# 5. Start both backend and frontend
+# 5. Start both backend and frontend with hot reload
 
 set -e
 
@@ -17,6 +17,7 @@ echo "=================================="
 RED='\033[0;31m'
 GREEN='\033[0;32m'
 YELLOW='\033[1;33m'
+BLUE='\033[0;34m'
 NC='\033[0m' # No Color
 
 # Function to cleanup ports
@@ -131,12 +132,12 @@ setup_database() {
     echo -e "${GREEN}   ✓ Database setup complete${NC}"
 }
 
-# Function to start services
+# Function to start services with hot reload
 start_services() {
-    echo -e "${YELLOW}🎯 Starting services...${NC}"
+    echo -e "${YELLOW}🎯 Starting services with hot reload...${NC}"
 
-    # Start backend in background
-    echo "   Starting backend on port 3001..."
+    # Start backend with tsx watch (hot reload)
+    echo "   Starting backend on port 3001 with hot reload..."
     cd backend
     npm run dev &
     BACKEND_PID=$!
@@ -145,8 +146,8 @@ start_services() {
     # Wait for backend to start
     sleep 3
 
-    # Start frontend in background
-    echo "   Starting frontend on port 3000..."
+    # Start frontend with Vite (hot reload enabled by default)
+    echo "   Starting frontend on port 3000 with hot reload..."
     cd frontend
     npm run dev &
     FRONTEND_PID=$!
@@ -157,14 +158,27 @@ start_services() {
     echo "🎉 AI Meeting Agent is running!"
     echo "==================================${NC}"
     echo ""
-    echo "📱 Frontend: http://localhost:3000"
-    echo "🔧 Backend:  http://localhost:3001"
+    echo -e "${BLUE}📱 Frontend: http://localhost:3000${NC}"
+    echo -e "${BLUE}🔧 Backend:  http://localhost:3001${NC}"
     echo ""
     echo -e "${YELLOW}Demo Credentials:${NC}"
     echo "   Email:    demo@aimeetingagent.com"
     echo "   Password: demo123"
     echo ""
-    echo "Press Ctrl+C to stop all services"
+    echo -e "${GREEN}🔄 Hot Reload Enabled:${NC}"
+    echo "   - Backend: tsx watch monitors file changes"
+    echo "   - Frontend: Vite HMR updates instantly"
+    echo ""
+    echo -e "${YELLOW}AI Features:${NC}"
+    echo "   - AI Transcriber"
+    echo "   - AI Note Summarizer"
+    echo "   - AI Action Item Extractor"
+    echo "   - AI Daily Planner"
+    echo "   - AI Decision Logger"
+    echo "   - AI Summary Generator"
+    echo "   - AI Follow-up Drafter"
+    echo ""
+    echo -e "Press ${RED}Ctrl+C${NC} to stop all services"
     echo ""
 
     # Wait for both processes
@@ -199,6 +213,7 @@ main() {
         echo "  DATABASE_URL=\"postgresql://postgres:postgres@localhost:5432/ai_meeting_agent\""
         echo "  JWT_SECRET=\"your-secret-key\""
         echo "  OPENROUTER_API_KEY=\"your-openrouter-api-key\""
+        echo "  OPENROUTER_MODEL=\"anthropic/claude-haiku-4.5\""
         exit 1
     fi
 

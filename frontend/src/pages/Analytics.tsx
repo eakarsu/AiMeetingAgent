@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import api from '../api/axios';
-import { ChartBarIcon, CalendarIcon, ClipboardDocumentListIcon, UserGroupIcon, ClockIcon, ArrowTrendingUpIcon } from '@heroicons/react/24/outline';
+import { CalendarIcon, ClipboardDocumentListIcon, ClockIcon, ArrowTrendingUpIcon } from '@heroicons/react/24/outline';
 
 export default function Analytics() {
   const [stats, setStats] = useState<any>(null);
@@ -62,7 +62,7 @@ export default function Analytics() {
         <div className="card">
           <h2 className="font-semibold text-gray-900 mb-4">Meeting Trends</h2>
           <div className="space-y-4">
-            {['Week 1', 'Week 2', 'Week 3', 'Week 4'].map((week, i) => {
+            {['Week 1', 'Week 2', 'Week 3', 'Week 4'].map((week) => {
               const value = Math.floor(Math.random() * 50) + 20;
               return (
                 <div key={week} className="flex items-center gap-4">

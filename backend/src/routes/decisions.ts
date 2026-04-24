@@ -22,7 +22,7 @@ router.get('/', authenticateToken, async (req: AuthRequest, res: Response) => {
     });
 
     // Filter to user's meetings
-    const userDecisions = decisions.filter(d => d.meeting.userId === req.user!.id);
+    const userDecisions = decisions.filter(d => !d.meeting || d.meeting.userId === req.user!.id);
     res.json(userDecisions);
   } catch (error) {
     console.error('Get decisions error:', error);

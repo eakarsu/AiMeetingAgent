@@ -6,7 +6,6 @@ import {
   ArrowLeftIcon,
   CalendarIcon,
   UserGroupIcon,
-  DocumentTextIcon,
   ClipboardDocumentListIcon,
   TrashIcon,
   PencilIcon,
@@ -38,12 +37,29 @@ export default function MeetingDetail() {
   const [meeting, setMeeting] = useState<Meeting | null>(null);
   const [loading, setLoading] = useState(true);
   const [aiLoading, setAiLoading] = useState(false);
+  const [editing, setEditing] = useState(false);
+  const [formData, setFormData] = useState({
+    title: '',
+    description: '',
+    startTime: '',
+    endTime: '',
+    status: '',
+    meetingLink: ''
+  });
 
   useEffect(() => {
     const fetchMeeting = async () => {
       try {
         const response = await api.get(`/meetings/${id}`);
         setMeeting(response.data);
+        setFormData({
+          title: response.data.title,
+          description: response.data.description || '',
+          startTime: response.data.startTime ? response.data.startTime.slice(0, 16) : '',
+          endTime: response.data.endTime ? response.data.endTime.slice(0, 16) : '',
+          status: response.data.status,
+          meetingLink: response.data.meetingLink || ''
+        });
       } catch (error) {
         console.error('Error fetching meeting:', error);
       } finally {
@@ -52,6 +68,18 @@ export default function MeetingDetail() {
     };
     fetchMeeting();
   }, [id]);
+
+  const handleUpdate = async (e: React.FormEvent) => {
+    e.preventDefault();
+    try {
+      await api.put(`/meetings/${id}`, formData);
+      const response = await api.get(`/meetings/${id}`);
+      setMeeting(response.data);
+      setEditing(false);
+    } catch (error) {
+      console.error('Error updating meeting:', error);
+    }
+  };
 
   const handleDelete = async () => {
     if (confirm('Are you sure you want to delete this meeting?')) {
@@ -125,18 +153,103 @@ export default function MeetingDetail() {
               onClick={(e) => e.stopPropagation()}
             >
               <CalendarIcon className="h-5 w-5" />
-              Join Meeting
+              Join
             </a>
           )}
           <button onClick={generateAISummary} disabled={aiLoading} className="btn-secondary flex items-center gap-2">
             <SparklesIcon className="h-5 w-5" />
-            {aiLoading ? 'Generating...' : 'AI Summary'}
+            {aiLoading ? 'Generating...' : 'AI'}
+          </button>
+          <button onClick={() => setEditing(!editing)} className="p-2 hover:bg-gray-100 rounded-lg">
+            <PencilIcon className="h-5 w-5 text-gray-500" />
           </button>
           <button onClick={handleDelete} className="p-2 hover:bg-red-50 text-red-600 rounded-lg">
             <TrashIcon className="h-5 w-5" />
           </button>
         </div>
       </div>
+
+      {editing && (
+        <form onSubmit={handleUpdate} className="card">
+          <h2 className="font-semibold text-gray-900 mb-4">Edit Meeting</h2>
+          <div className="space-y-4">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Title</label>
+              <input
+                type="text"
+                className="input"
+                value={formData.title}
+                onChange={(e) => setFormData({ ...formData, title: e.target.value })}
+                required
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Description</label>
+              <textarea
+                className="input"
+                rows={3}
+                value={formData.description}
+                onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+              />
+            </div>
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Start Time</label>
+                <input
+                  type="datetime-local"
+                  className="input"
+                  value={formData.startTime}
+                  onChange={(e) => setFormData({ ...formData, startTime: e.target.value })}
+                  required
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">End Time</label>
+                <input
+                  type="datetime-local"
+                  className="input"
+                  value={formData.endTime}
+                  onChange={(e) => setFormData({ ...formData, endTime: e.target.value })}
+                  required
+                />
+              </div>
+            </div>
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Status</label>
+                <select
+                  className="input"
+                  value={formData.status}
+                  onChange={(e) => setFormData({ ...formData, status: e.target.value })}
+                >
+                  <option value="scheduled">Scheduled</option>
+                  <option value="in_progress">In Progress</option>
+                  <option value="completed">Completed</option>
+                  <option value="cancelled">Cancelled</option>
+                </select>
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Meeting Link</label>
+                <input
+                  type="url"
+                  className="input"
+                  placeholder="https://..."
+                  value={formData.meetingLink}
+                  onChange={(e) => setFormData({ ...formData, meetingLink: e.target.value })}
+                />
+              </div>
+            </div>
+            <div className="flex gap-3">
+              <button type="button" onClick={() => setEditing(false)} className="btn-secondary flex-1">
+                Cancel
+              </button>
+              <button type="submit" className="btn-primary flex-1">
+                Save Changes
+              </button>
+            </div>
+          </div>
+        </form>
+      )}
 
       <div className="grid lg:grid-cols-3 gap-6">
         {/* Meeting Info */}
@@ -176,7 +289,7 @@ export default function MeetingDetail() {
         {/* Participants */}
         <div className="card">
           <h2 className="font-semibold text-gray-900 mb-4">Participants ({meeting.participants?.length || 0})</h2>
-          <div className="space-y-3">
+          <div className="space-y-3 max-h-64 overflow-y-auto">
             {meeting.participants?.map((participant) => (
               <div key={participant.id} className="flex items-center justify-between p-2 bg-gray-50 rounded-lg">
                 <div>
@@ -195,7 +308,7 @@ export default function MeetingDetail() {
         {/* Agenda */}
         <div className="card">
           <h2 className="font-semibold text-gray-900 mb-4">Agenda ({meeting.agendaItems?.length || 0})</h2>
-          <div className="space-y-2">
+          <div className="space-y-2 max-h-64 overflow-y-auto">
             {meeting.agendaItems?.map((item, index) => (
               <div key={item.id} className="flex items-center gap-3 p-2 bg-gray-50 rounded-lg">
                 <span className="flex-shrink-0 w-6 h-6 bg-primary-100 text-primary-600 rounded-full flex items-center justify-center text-xs font-medium">
@@ -221,7 +334,7 @@ export default function MeetingDetail() {
             <h2 className="font-semibold text-gray-900">Action Items ({meeting.actionItems?.length || 0})</h2>
             <Link to="/action-items" className="text-sm text-primary-600 hover:text-primary-700">View all</Link>
           </div>
-          <div className="space-y-2">
+          <div className="space-y-2 max-h-64 overflow-y-auto">
             {meeting.actionItems?.slice(0, 5).map((item) => (
               <div
                 key={item.id}
@@ -250,7 +363,7 @@ export default function MeetingDetail() {
             <h2 className="font-semibold text-gray-900">Notes ({meeting.notes?.length || 0})</h2>
             <Link to="/notes" className="text-sm text-primary-600 hover:text-primary-700">View all</Link>
           </div>
-          <div className="space-y-2">
+          <div className="space-y-2 max-h-64 overflow-y-auto">
             {meeting.notes?.slice(0, 3).map((note) => (
               <div
                 key={note.id}
@@ -272,7 +385,7 @@ export default function MeetingDetail() {
             <h2 className="font-semibold text-gray-900">Decisions ({meeting.decisions?.length || 0})</h2>
             <Link to="/decisions" className="text-sm text-primary-600 hover:text-primary-700">View all</Link>
           </div>
-          <div className="space-y-2">
+          <div className="space-y-2 max-h-64 overflow-y-auto">
             {meeting.decisions?.slice(0, 5).map((decision) => (
               <div
                 key={decision.id}
@@ -301,9 +414,13 @@ export default function MeetingDetail() {
           </h2>
           <div className="grid md:grid-cols-2 gap-4">
             {meeting.insights.map((insight) => (
-              <div key={insight.id} className="p-4 bg-primary-50 rounded-lg">
-                <p className="text-xs font-medium text-primary-600 uppercase mb-1">{insight.type}</p>
-                <p className="text-gray-900">{insight.content}</p>
+              <div
+                key={insight.id}
+                onClick={() => navigate(`/insights/${insight.id}`)}
+                className="p-4 bg-primary-50 rounded-lg hover:bg-primary-100 cursor-pointer"
+              >
+                <p className="text-xs font-medium text-primary-600 uppercase mb-1">{insight.type.replace('_', ' ')}</p>
+                <p className="text-gray-900 line-clamp-3">{insight.content}</p>
               </div>
             ))}
           </div>
