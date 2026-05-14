@@ -1,7 +1,87 @@
 import { Router, Response } from 'express';
 import { PrismaClient } from '@prisma/client';
 import OpenAI from 'openai';
+import { z } from 'zod';
 import { authenticateToken, AuthRequest } from '../middleware/auth.js';
+import { validateBody } from '../middleware/validate.js';
+
+// ── Validation schemas ────────────────────────────────────────────────────────
+
+const TranscriptSchema = z.object({
+  meetingId: z.string().uuid().optional(),
+  transcript: z.string().min(10, 'Transcript must be at least 10 characters').max(200_000, 'Transcript too long'),
+});
+
+const ExtractActionsSchema = TranscriptSchema;
+
+const SentimentSchema = TranscriptSchema;
+
+const TopicsSchema = TranscriptSchema;
+
+const GenerateNotesSchema = TranscriptSchema;
+
+const ExtractDecisionsSchema = TranscriptSchema;
+
+const TranscribeSchema = z.object({
+  meetingId: z.string().uuid().optional(),
+  rawText: z.string().min(10, 'Raw text must be at least 10 characters').max(200_000, 'Text too long'),
+  speakers: z.array(z.string()).optional(),
+});
+
+const FollowUpEmailSchema = z.object({
+  meetingTitle: z.string().min(1, 'Meeting title is required').max(500),
+  summary: z.string().min(1, 'Summary is required').max(50_000),
+  actionItems: z.array(z.any()).optional(),
+  recipients: z.array(z.string()).optional(),
+});
+
+const SuggestAgendaSchema = z.object({
+  meetingTitle: z.string().min(1, 'Meeting title is required').max(500),
+  context: z.string().max(10_000).optional(),
+  previousMeetings: z.string().max(10_000).optional(),
+});
+
+const ChatSchema = z.object({
+  message: z.string().min(1, 'Message is required').max(10_000),
+  context: z.string().max(50_000).optional(),
+});
+
+const DailyPlannerSchema = z.object({
+  date: z.string().optional(),
+  meetings: z.array(z.any()).optional(),
+  actionItems: z.array(z.any()).optional(),
+  priorities: z.string().max(2_000).optional(),
+});
+
+const DraftFollowupSchema = z.object({
+  meetingTitle: z.string().min(1, 'Meeting title is required').max(500),
+  summary: z.string().max(50_000).optional(),
+  actionItems: z.array(z.any()).optional(),
+  decisions: z.array(z.any()).optional(),
+  recipients: z.array(z.string()).optional(),
+  tone: z.enum(['professional', 'casual', 'formal']).optional(),
+});
+
+const GenerateSummarySchema = z.object({
+  meetingId: z.string().uuid().optional(),
+  transcript: z.string().min(10, 'Transcript must be at least 10 characters').max(200_000, 'Transcript too long'),
+  format: z.enum(['executive', 'detailed', 'bullet', 'email', 'slack']).optional(),
+});
+
+const MeetingQualityScoreSchema = TranscriptSchema;
+
+const ParticipantEngagementSchema = TranscriptSchema;
+
+const DecisionConsensusCheckSchema = TranscriptSchema;
+
+const NextMeetingOptimizerSchema = z.object({
+  meetingId: z.string().uuid().optional(),
+  meetingSeriesTitle: z.string().min(1).max(500),
+  recentMeetingSummaries: z.array(z.string().max(20_000)).min(1, 'Provide at least one prior meeting summary').max(20),
+  upcomingAgendaDraft: z.string().max(20_000).optional(),
+  participants: z.array(z.string()).optional(),
+  cadence: z.enum(['weekly', 'biweekly', 'monthly', 'adhoc']).optional(),
+});
 
 const router = Router();
 
@@ -53,6 +133,19 @@ const parseAIJson = (text: string, fallback: any): any => {
   return fallback;
 };
 
+class NoApiKeyError extends Error {
+  code = 'NO_API_KEY';
+  constructor() { super('AI service unavailable: no LLM API key configured'); }
+}
+
+const hasLLMKey = (): boolean => {
+  const orKey = process.env.OPENROUTER_API_KEY;
+  if (orKey && !orKey.includes('your-')) return true;
+  const oaKey = process.env.OPENAI_API_KEY;
+  if (oaKey && !oaKey.includes('your-')) return true;
+  return false;
+};
+
 // Initialize AI client - uses OPENROUTER_MODEL from env
 const getAIClient = () => {
   const model = process.env.OPENROUTER_MODEL || 'anthropic/claude-haiku-4.5';
@@ -82,7 +175,7 @@ const getAIClient = () => {
 };
 
 // Generate meeting summary
-router.post('/summarize', authenticateToken, async (req: AuthRequest, res: Response) => {
+router.post('/summarize', authenticateToken, validateBody(TranscriptSchema), async (req: AuthRequest, res: Response) => {
   try {
     const prisma: PrismaClient = req.app.get('prisma');
     const { meetingId, transcript } = req.body;
@@ -141,7 +234,7 @@ Return ONLY a plain text summary with clear sections using markdown headers. No 
 });
 
 // Extract action items from transcript
-router.post('/extract-actions', authenticateToken, async (req: AuthRequest, res: Response) => {
+router.post('/extract-actions', authenticateToken, validateBody(ExtractActionsSchema), async (req: AuthRequest, res: Response) => {
   try {
     const prisma: PrismaClient = req.app.get('prisma');
     const { meetingId, transcript } = req.body;
@@ -212,7 +305,7 @@ Return ONLY a valid JSON array (no markdown, no code fences). Each item must hav
 });
 
 // Analyze sentiment
-router.post('/sentiment', authenticateToken, async (req: AuthRequest, res: Response) => {
+router.post('/sentiment', authenticateToken, validateBody(SentimentSchema), async (req: AuthRequest, res: Response) => {
   try {
     const prisma: PrismaClient = req.app.get('prisma');
     const { meetingId, transcript } = req.body;
@@ -280,7 +373,7 @@ Return ONLY a valid JSON object (no markdown, no code fences):
 });
 
 // Extract key topics
-router.post('/topics', authenticateToken, async (req: AuthRequest, res: Response) => {
+router.post('/topics', authenticateToken, validateBody(TopicsSchema), async (req: AuthRequest, res: Response) => {
   try {
     const prisma: PrismaClient = req.app.get('prisma');
     const { meetingId, transcript } = req.body;
@@ -346,7 +439,7 @@ Return ONLY a valid JSON array (no markdown, no code fences):
 });
 
 // Generate follow-up email
-router.post('/follow-up-email', authenticateToken, async (req: AuthRequest, res: Response) => {
+router.post('/follow-up-email', authenticateToken, validateBody(FollowUpEmailSchema), async (req: AuthRequest, res: Response) => {
   try {
     const prisma: PrismaClient = req.app.get('prisma');
     const { meetingTitle, summary, actionItems, recipients } = req.body;
@@ -404,7 +497,7 @@ Action Items: ${JSON.stringify(actionItems || [])}`
 });
 
 // Suggest agenda items
-router.post('/suggest-agenda', authenticateToken, async (req: AuthRequest, res: Response) => {
+router.post('/suggest-agenda', authenticateToken, validateBody(SuggestAgendaSchema), async (req: AuthRequest, res: Response) => {
   try {
     const prisma: PrismaClient = req.app.get('prisma');
     const { meetingTitle, context, previousMeetings } = req.body;
@@ -480,7 +573,7 @@ Previous meetings context: ${previousMeetings || 'None provided'}`
 });
 
 // Chat with AI about meetings
-router.post('/chat', authenticateToken, async (req: AuthRequest, res: Response) => {
+router.post('/chat', authenticateToken, validateBody(ChatSchema), async (req: AuthRequest, res: Response) => {
   try {
     const prisma: PrismaClient = req.app.get('prisma');
     const { message, context } = req.body;
@@ -531,7 +624,7 @@ Provide thoughtful, specific, actionable advice. Use examples when helpful. If t
 });
 
 // Generate meeting notes from transcript
-router.post('/generate-notes', authenticateToken, async (req: AuthRequest, res: Response) => {
+router.post('/generate-notes', authenticateToken, validateBody(GenerateNotesSchema), async (req: AuthRequest, res: Response) => {
   try {
     const prisma: PrismaClient = req.app.get('prisma');
     const { meetingId, transcript } = req.body;
@@ -592,7 +685,7 @@ Structure:
 });
 
 // AI Daily Planner - Generate daily plan based on meetings and tasks
-router.post('/daily-planner', authenticateToken, async (req: AuthRequest, res: Response) => {
+router.post('/daily-planner', authenticateToken, validateBody(DailyPlannerSchema), async (req: AuthRequest, res: Response) => {
   try {
     const prisma: PrismaClient = req.app.get('prisma');
     const { date, meetings, actionItems, priorities } = req.body;
@@ -667,7 +760,7 @@ Priority Focus: ${priorities || 'Balance meetings with deep work time'}`
 });
 
 // AI Decision Logger - Extract and structure decisions from meeting content
-router.post('/extract-decisions', authenticateToken, async (req: AuthRequest, res: Response) => {
+router.post('/extract-decisions', authenticateToken, validateBody(ExtractDecisionsSchema), async (req: AuthRequest, res: Response) => {
   try {
     const prisma: PrismaClient = req.app.get('prisma');
     const { meetingId, transcript } = req.body;
@@ -741,7 +834,7 @@ Return ONLY a valid JSON array (no markdown, no code fences):
 });
 
 // AI Transcriber - Clean up and format raw transcript
-router.post('/transcribe', authenticateToken, async (req: AuthRequest, res: Response) => {
+router.post('/transcribe', authenticateToken, validateBody(TranscribeSchema), async (req: AuthRequest, res: Response) => {
   try {
     const prisma: PrismaClient = req.app.get('prisma');
     const { meetingId, rawText, speakers } = req.body;
@@ -810,7 +903,7 @@ Return ONLY a valid JSON object (no markdown, no code fences):
 });
 
 // AI Follow-up Drafter - Generate comprehensive follow-up communications
-router.post('/draft-followup', authenticateToken, async (req: AuthRequest, res: Response) => {
+router.post('/draft-followup', authenticateToken, validateBody(DraftFollowupSchema), async (req: AuthRequest, res: Response) => {
   try {
     const prisma: PrismaClient = req.app.get('prisma');
     const { meetingTitle, summary, actionItems, decisions, recipients, tone } = req.body;
@@ -914,7 +1007,7 @@ Decisions: ${JSON.stringify(decisions || [])}`
 });
 
 // AI Summary Generator - Multiple summary formats
-router.post('/generate-summary', authenticateToken, async (req: AuthRequest, res: Response) => {
+router.post('/generate-summary', authenticateToken, validateBody(GenerateSummarySchema), async (req: AuthRequest, res: Response) => {
   try {
     const prisma: PrismaClient = req.app.get('prisma');
     const { meetingId, transcript, format } = req.body;
@@ -978,6 +1071,311 @@ Return ONLY a valid JSON object (no markdown, no code fences):
   } catch (error) {
     console.error('Generate summary error:', error);
     res.status(500).json({ error: 'Failed to generate summary' });
+  }
+});
+
+// ── NEW: SSE streaming summary endpoint ────────────────────────────────────
+// Streams summary tokens to the client as they arrive from the AI provider so
+// the UI can render text progressively instead of waiting for full completion.
+function sseHeaders(res: Response): void {
+  res.setHeader('Content-Type', 'text/event-stream');
+  res.setHeader('Cache-Control', 'no-cache');
+  res.setHeader('Connection', 'keep-alive');
+  res.setHeader('X-Accel-Buffering', 'no');
+  res.flushHeaders?.();
+}
+function sseWrite(res: Response, event: string, data: unknown): void {
+  res.write(`event: ${event}\ndata: ${JSON.stringify(data)}\n\n`);
+}
+
+router.post('/stream-summary', authenticateToken, validateBody(TranscriptSchema), async (req: AuthRequest, res: Response) => {
+  sseHeaders(res);
+  try {
+    const prisma: PrismaClient = req.app.get('prisma');
+    const { meetingId, transcript } = req.body;
+    const { client, model } = getAIClient();
+
+    let fullText = '';
+    const stream = await client.chat.completions.create({
+      model,
+      stream: true,
+      max_tokens: 3000,
+      messages: [
+        { role: 'system', content: 'You are an expert meeting summarizer. Produce a clear, well-structured summary in markdown.' },
+        { role: 'user', content: `Summarize this meeting transcript:\n\n${transcript}` },
+      ],
+    });
+
+    for await (const chunk of stream as any) {
+      const token: string = chunk?.choices?.[0]?.delta?.content || '';
+      if (token) {
+        sseWrite(res, 'token', { token });
+        fullText += token;
+      }
+    }
+
+    const saved = await prisma.aIInsight.create({
+      data: {
+        meetingId: meetingId || undefined,
+        type: 'summary',
+        content: fullText,
+        confidence: 0.9,
+        userId: req.user!.id,
+      },
+    });
+
+    sseWrite(res, 'done', { savedId: saved.id });
+    res.end();
+  } catch (err: any) {
+    console.error('stream-summary error:', err);
+    sseWrite(res, 'error', { error: err?.message || 'streaming failed' });
+    res.end();
+  }
+});
+
+// Meeting quality score — assess effectiveness
+router.post('/meeting-quality-score', authenticateToken, validateBody(MeetingQualityScoreSchema), async (req: AuthRequest, res: Response) => {
+  try {
+    const prisma: PrismaClient = req.app.get('prisma');
+    const { meetingId, transcript } = req.body;
+    const { client, model } = getAIClient();
+
+    const completion = await client.chat.completions.create({
+      model,
+      messages: [
+        {
+          role: 'system',
+          content: `You are a meeting effectiveness coach. Score meeting quality and recommend improvements.
+
+Return ONLY a valid JSON object (no markdown, no code fences):
+{
+  "overall_score": 0-100,
+  "dimensions": {
+    "clarity_of_purpose": 0-100,
+    "decision_quality": 0-100,
+    "action_orientation": 0-100,
+    "time_efficiency": 0-100,
+    "participation_balance": 0-100
+  },
+  "strengths": [string],
+  "improvement_areas": [{"area": string, "evidence": string, "recommendation": string}],
+  "next_meeting_suggestions": [string]
+}`,
+        },
+        { role: 'user', content: `Score this meeting transcript:\n\n${transcript}` },
+      ],
+      max_tokens: 2048,
+    });
+
+    const rawContent = completion.choices[0]?.message?.content || '{}';
+    const quality = parseAIJson(rawContent, { overall_score: 50, dimensions: {}, strengths: [], improvement_areas: [] });
+
+    const saved = await prisma.aIInsight.create({
+      data: {
+        meetingId: meetingId || undefined,
+        type: 'quality-score',
+        content: JSON.stringify(quality),
+        confidence: (quality.overall_score || 50) / 100,
+        userId: req.user!.id,
+      },
+    });
+
+    res.json({ quality, savedId: saved.id });
+  } catch (error) {
+    console.error('Meeting quality score error:', error);
+    res.status(500).json({ error: 'Failed to score meeting quality' });
+  }
+});
+
+// Participant engagement analyzer — who spoke, who was silent
+router.post('/participant-engagement-analyzer', authenticateToken, validateBody(ParticipantEngagementSchema), async (req: AuthRequest, res: Response) => {
+  try {
+    const prisma: PrismaClient = req.app.get('prisma');
+    const { meetingId, transcript } = req.body;
+    const { client, model } = getAIClient();
+
+    const completion = await client.chat.completions.create({
+      model,
+      messages: [
+        {
+          role: 'system',
+          content: `You are a meeting facilitation analyst. Estimate participant engagement from a transcript.
+
+Return ONLY a valid JSON object (no markdown, no code fences):
+{
+  "participants": [
+    {
+      "name": string,
+      "estimated_speaking_share_percent": number,
+      "engagement_level": "high" | "medium" | "low",
+      "contribution_summary": string,
+      "topics_owned": [string]
+    }
+  ],
+  "silent_or_underrepresented": [string],
+  "dominant_speakers": [string],
+  "facilitation_recommendations": [string]
+}`,
+        },
+        { role: 'user', content: `Analyze participant engagement:\n\n${transcript}` },
+      ],
+      max_tokens: 2048,
+    });
+
+    const rawContent = completion.choices[0]?.message?.content || '{}';
+    const engagement = parseAIJson(rawContent, { participants: [], silent_or_underrepresented: [], dominant_speakers: [] });
+
+    const saved = await prisma.aIInsight.create({
+      data: {
+        meetingId: meetingId || undefined,
+        type: 'engagement',
+        content: JSON.stringify(engagement),
+        confidence: 0.7,
+        userId: req.user!.id,
+      },
+    });
+
+    res.json({ engagement, savedId: saved.id });
+  } catch (error) {
+    console.error('Participant engagement error:', error);
+    res.status(500).json({ error: 'Failed to analyze participant engagement' });
+  }
+});
+
+// Decision consensus check — analyze whether a transcript actually achieved consensus
+router.post('/decision-consensus-check', authenticateToken, validateBody(DecisionConsensusCheckSchema), async (req: AuthRequest, res: Response) => {
+  try {
+    if (!hasLLMKey()) {
+      return res.status(503).json({ error: 'AI service unavailable: OPENROUTER_API_KEY (or OPENAI_API_KEY) not configured' });
+    }
+    const prisma: PrismaClient = req.app.get('prisma');
+    const { meetingId, transcript } = req.body;
+    const { client, model } = getAIClient();
+
+    const completion = await client.chat.completions.create({
+      model,
+      messages: [
+        {
+          role: 'system',
+          content: `You are a decision-making and consensus analyst. Given a meeting transcript, evaluate whether each apparent "decision" achieved real consensus or whether dissent was suppressed, glossed over, or unresolved.
+
+Return ONLY a valid JSON object (no markdown, no code fences):
+{
+  "decisions": [
+    {
+      "title": string,
+      "consensus_level": "unanimous" | "majority" | "split" | "implicit" | "unresolved",
+      "supporters": [string],
+      "dissenters": [string],
+      "silent_participants": [string],
+      "evidence_quotes": [string],
+      "risk_if_premature": string,
+      "follow_up_required": boolean,
+      "follow_up_recommendation": string
+    }
+  ],
+  "overall_consensus_health": "strong" | "fragile" | "weak",
+  "facilitation_recommendations": [string]
+}`,
+        },
+        { role: 'user', content: `Analyze decision consensus in this transcript:\n\n${transcript}` },
+      ],
+      max_tokens: 2048,
+    });
+
+    const rawContent = completion.choices[0]?.message?.content || '{}';
+    const consensus = parseAIJson(rawContent, { decisions: [], overall_consensus_health: 'fragile', facilitation_recommendations: [] });
+
+    const saved = await prisma.aIInsight.create({
+      data: {
+        meetingId: meetingId || undefined,
+        type: 'consensus-check',
+        content: JSON.stringify(consensus),
+        confidence: 0.7,
+        userId: req.user!.id,
+      },
+    });
+
+    res.json({ consensus, savedId: saved.id });
+  } catch (error) {
+    console.error('Decision consensus check error:', error);
+    res.status(500).json({ error: 'Failed to analyze decision consensus' });
+  }
+});
+
+// Next meeting optimizer — suggest agenda, attendees, cadence improvements for a meeting series
+router.post('/next-meeting-optimizer', authenticateToken, validateBody(NextMeetingOptimizerSchema), async (req: AuthRequest, res: Response) => {
+  try {
+    if (!hasLLMKey()) {
+      return res.status(503).json({ error: 'AI service unavailable: OPENROUTER_API_KEY (or OPENAI_API_KEY) not configured' });
+    }
+    const prisma: PrismaClient = req.app.get('prisma');
+    const { meetingId, meetingSeriesTitle, recentMeetingSummaries, upcomingAgendaDraft, participants, cadence } = req.body;
+    const { client, model } = getAIClient();
+
+    const userPayload = `Meeting series: ${meetingSeriesTitle}
+Cadence: ${cadence || 'unspecified'}
+Participants: ${participants ? participants.join(', ') : 'unspecified'}
+
+Recent meeting summaries (newest last):
+${recentMeetingSummaries.map((s: string, i: number) => `--- meeting ${i + 1} ---\n${s}`).join('\n\n')}
+
+${upcomingAgendaDraft ? `Draft agenda for next meeting:\n${upcomingAgendaDraft}` : 'No agenda drafted yet.'}`;
+
+    const completion = await client.chat.completions.create({
+      model,
+      messages: [
+        {
+          role: 'system',
+          content: `You are a meeting effectiveness coach. Given recent meeting history and an optional agenda draft, recommend how to optimize the NEXT meeting in this series.
+
+Return ONLY a valid JSON object (no markdown, no code fences):
+{
+  "recommended_agenda": [
+    { "topic": string, "outcome_target": string, "owner": string | null, "time_minutes": number }
+  ],
+  "carry_over_action_items": [string],
+  "open_decisions_to_close": [string],
+  "people_to_invite": [string],
+  "people_to_excuse": [string],
+  "suggested_duration_minutes": number,
+  "suggested_cadence_change": "keep" | "more_frequent" | "less_frequent" | "split_into_two" | "merge_with_other_series",
+  "preparation_required_from_attendees": [string],
+  "risks_if_not_addressed": [string]
+}`,
+        },
+        { role: 'user', content: userPayload },
+      ],
+      max_tokens: 2048,
+    });
+
+    const rawContent = completion.choices[0]?.message?.content || '{}';
+    const plan = parseAIJson(rawContent, {
+      recommended_agenda: [],
+      carry_over_action_items: [],
+      open_decisions_to_close: [],
+      people_to_invite: [],
+      people_to_excuse: [],
+      suggested_duration_minutes: 30,
+      suggested_cadence_change: 'keep',
+      preparation_required_from_attendees: [],
+      risks_if_not_addressed: [],
+    });
+
+    const saved = await prisma.aIInsight.create({
+      data: {
+        meetingId: meetingId || undefined,
+        type: 'next-meeting-optimizer',
+        content: JSON.stringify(plan),
+        confidence: 0.7,
+        userId: req.user!.id,
+      },
+    });
+
+    res.json({ plan, savedId: saved.id });
+  } catch (error) {
+    console.error('Next meeting optimizer error:', error);
+    res.status(500).json({ error: 'Failed to optimize next meeting' });
   }
 });
 

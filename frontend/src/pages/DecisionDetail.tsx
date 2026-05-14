@@ -74,6 +74,12 @@ export default function DecisionDetail() {
           <span className={getStatusColor(decision.status)}>{decision.status}</span>
         </div>
         <div className="flex items-center gap-2">
+          <button
+            onClick={() => navigate(`/decisions/${id}/graph`)}
+            className="px-3 py-2 text-sm rounded-lg bg-purple-50 text-purple-700 hover:bg-purple-100"
+          >
+            Graph
+          </button>
           <button onClick={() => setEditing(!editing)} className="p-2 hover:bg-gray-100 rounded-lg">
             <PencilIcon className="h-5 w-5 text-gray-500" />
           </button>

@@ -28,6 +28,10 @@ import Analytics from './pages/Analytics';
 import AIAssistant from './pages/AIAssistant';
 import JoinMeeting from './pages/JoinMeeting';
 import Recordings from './pages/Recordings';
+import MeetingCoach from './pages/MeetingCoach';
+import MeetingSeries from './pages/MeetingSeries';
+import DecisionGraph from './pages/DecisionGraph';
+import MeetingQualityTools from './pages/MeetingQualityTools';
 
 function PrivateRoute({ children }: { children: React.ReactNode }) {
   const { isAuthenticated, loading } = useAuth();
@@ -79,6 +83,10 @@ function App() {
                 <Route path="/ai-assistant" element={<AIAssistant />} />
                 <Route path="/join-meeting" element={<JoinMeeting />} />
                 <Route path="/recordings" element={<Recordings />} />
+                <Route path="/meeting-coach" element={<MeetingCoach />} />
+                <Route path="/meeting-series" element={<MeetingSeries />} />
+                <Route path="/decisions/:id/graph" element={<DecisionGraph />} />
+                <Route path="/meeting-quality-tools" element={<MeetingQualityTools />} />
               </Routes>
             </Layout>
           </PrivateRoute>

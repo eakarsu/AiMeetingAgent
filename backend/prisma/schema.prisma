@@ -157,7 +157,7 @@ model AIInsight {
 
 model MeetingTemplate {
   id          String   @id @default(uuid())
-  name        String
+  name        String   @unique
   description String?
   duration    Int      // in minutes
   agendaItems Json     // array of agenda items
@@ -213,4 +213,55 @@ model CalendarEvent {
   source      String   @default("internal") // internal, google, outlook
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
+}
+
+// ────── NEW: Meeting Coach analytics — per-participant speaking time / interruption metrics
+model MeetingCoachReport {
+  id               String   @id @default(uuid())
+  meetingId        String
+  totalDuration    Int      // total transcript duration in seconds
+  participantCount Int
+  speakingTime     Json     // { participantName: seconds }
+  interruptionRate Json     // { participantName: count }
+  monologueCount   Json     // { participantName: count_of_monologues }
+  imbalanceScore   Float    // 0-100 — how unequal participation was
+  aiInsights       Json     // { summary, recommendations[], warnings[] } from AI
+  aiResults        Json     // raw AI response for traceability
+  createdAt        DateTime @default(now())
+
+  @@index([meetingId])
+}
+
+// ────── NEW: Meeting series intelligence — track recurring meetings
+model MeetingSeries {
+  id              String   @id @default(uuid())
+  name            String
+  cadence         String   // daily, weekly, biweekly, monthly
+  participants    String[] // canonical participant emails
+  meetingIds      String[] // matched Meeting IDs in this series
+  decisionDensity Float    // avg decisions per meeting
+  actionDensity   Float    // avg action items per meeting
+  riskLevel       String   @default("healthy") // healthy, at_risk, redundant
+  aiAnalysis      String?  @db.Text
+  aiResults       Json?    // raw AI response
+  lastAnalyzedAt  DateTime @default(now())
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  @@index([cadence])
+}
+
+// ────── NEW: Cross-meeting decision graph edges
+model DecisionLink {
+  id             String   @id @default(uuid())
+  fromDecisionId String
+  toDecisionId   String
+  relationType   String   // overrules, refines, references
+  confidence     Float    @default(0.5)
+  aiResults      Json?
+  createdAt      DateTime @default(now())
+
+  @@unique([fromDecisionId, toDecisionId, relationType])
+  @@index([fromDecisionId])
+  @@index([toDecisionId])
 }

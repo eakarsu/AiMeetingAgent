@@ -39,6 +39,9 @@ const navigation = [
   { name: 'Calendar', href: '/calendar', icon: CalendarIcon },
   { name: 'Analytics', href: '/analytics', icon: ChartBarIcon },
   { name: 'AI Assistant', href: '/ai-assistant', icon: SparklesIcon },
+  { name: 'Quality Tools', href: '/meeting-quality-tools', icon: SparklesIcon },
+  { name: 'Meeting Coach', href: '/meeting-coach', icon: SparklesIcon },
+  { name: 'Recurring Series', href: '/meeting-series', icon: ArrowPathIcon },
 ];
 
 export default function Layout({ children }: { children: React.ReactNode }) {
