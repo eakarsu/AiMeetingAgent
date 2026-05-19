@@ -42,6 +42,7 @@ const navigation = [
   { name: 'Quality Tools', href: '/meeting-quality-tools', icon: SparklesIcon },
   { name: 'Meeting Coach', href: '/meeting-coach', icon: SparklesIcon },
   { name: 'Recurring Series', href: '/meeting-series', icon: ArrowPathIcon },
+  { name: 'Meeting Views', href: '/meeting-views', icon: ChartBarIcon },
 ];
 
 export default function Layout({ children }: { children: React.ReactNode }) {

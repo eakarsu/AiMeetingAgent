@@ -32,6 +32,7 @@ import MeetingCoach from './pages/MeetingCoach';
 import MeetingSeries from './pages/MeetingSeries';
 import DecisionGraph from './pages/DecisionGraph';
 import MeetingQualityTools from './pages/MeetingQualityTools';
+import CustomViewsPage from './pages/CustomViewsPage';
 
 function PrivateRoute({ children }: { children: React.ReactNode }) {
   const { isAuthenticated, loading } = useAuth();
@@ -87,6 +88,7 @@ function App() {
                 <Route path="/meeting-series" element={<MeetingSeries />} />
                 <Route path="/decisions/:id/graph" element={<DecisionGraph />} />
                 <Route path="/meeting-quality-tools" element={<MeetingQualityTools />} />
+                <Route path="/meeting-views" element={<CustomViewsPage />} />
               </Routes>
             </Layout>
           </PrivateRoute>

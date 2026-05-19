@@ -29,6 +29,7 @@ import adminRoutes from './routes/admin.js';
 import meetingCoachRoutes from './routes/meetingCoach.js';
 import meetingSeriesRoutes from './routes/meetingSeries.js';
 import decisionLinksRoutes from './routes/decisionLinks.js';
+import customViewsRoutes from './routes/customViews.js';
 
 // === BATCH 05 AUTO-MOUNT imports ===
 import liveFacilitatorAgentRouter from './routes/live-facilitator-agent';
@@ -123,6 +124,9 @@ app.use('/api/admin', adminRoutes);
 app.use('/api/meeting-coach', authenticateToken, aiRateLimiter, meetingCoachRoutes);
 app.use('/api/meeting-series', authenticateToken, aiRateLimiter, meetingSeriesRoutes);
 app.use('/api/decision-links', authenticateToken, aiRateLimiter, decisionLinksRoutes);
+
+// Custom Views (Meeting Views) — 4 endpoints used by the CustomViewsPage
+app.use('/api/custom-views', customViewsRoutes);
 
 // Version endpoint for ops/observability
 app.get('/api/version', (_req, res) => {
