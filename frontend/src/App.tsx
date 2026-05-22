@@ -33,6 +33,10 @@ import MeetingSeries from './pages/MeetingSeries';
 import DecisionGraph from './pages/DecisionGraph';
 import MeetingQualityTools from './pages/MeetingQualityTools';
 import CustomViewsPage from './pages/CustomViewsPage';
+import DecisionReversalRisk from './pages/DecisionReversalRisk';
+
+import CodexCustomVizFeature from './pages/CodexCustomVizFeature';
+import CodexOperationsFeature from './pages/CodexOperationsFeature';
 
 function PrivateRoute({ children }: { children: React.ReactNode }) {
   const { isAuthenticated, loading } = useAuth();
@@ -51,6 +55,9 @@ function PrivateRoute({ children }: { children: React.ReactNode }) {
 function App() {
   return (
     <Routes>
+        <Route path="/codex/custom-viz" element={<CodexCustomVizFeature />} />
+        <Route path="/codex/operations" element={<CodexOperationsFeature />} />
+
       <Route path="/login" element={<Login />} />
       <Route
         path="/*"
@@ -89,6 +96,7 @@ function App() {
                 <Route path="/decisions/:id/graph" element={<DecisionGraph />} />
                 <Route path="/meeting-quality-tools" element={<MeetingQualityTools />} />
                 <Route path="/meeting-views" element={<CustomViewsPage />} />
+                <Route path="/decision-reversal-risk" element={<DecisionReversalRisk />} />
               </Routes>
             </Layout>
           </PrivateRoute>
