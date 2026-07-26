@@ -1,229 +1,25 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
-# AI Meeting Agent - Start Script
-# This script will:
-# 1. Clean up used ports (3000 and 3001) - NOT port 5000
-# 2. Start PostgreSQL (if using Docker)
-# 3. Install dependencies
-# 4. Set up database and seed data
-# 5. Start both backend and frontend with hot reload
+set -euo pipefail
 
-set -e
+project_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+cd "$project_dir"
+set -a
+source "$project_dir/.env"
+set +a
 
-echo "🚀 AI Meeting Agent - Starting..."
-echo "=================================="
+if ! command -v node >/dev/null 2>&1; then
+  printf 'Node.js 18 or newer is required.\n' >&2
+  exit 1
+fi
 
-# Colors for output
-RED='\033[0;31m'
-GREEN='\033[0;32m'
-YELLOW='\033[1;33m'
-BLUE='\033[0;34m'
-NC='\033[0m' # No Color
-
-# Function to cleanup ports
-cleanup_ports() {
-    echo -e "${YELLOW}🧹 Cleaning up ports 3000 and 3001...${NC}"
-
-    # Kill processes on port 3000 (frontend)
-    if lsof -ti:3000 > /dev/null 2>&1; then
-        echo "   Killing process on port 3000..."
-        kill -9 $(lsof -ti:3000) 2>/dev/null || true
-    fi
-
-    # Kill processes on port 3001 (backend)
-    if lsof -ti:3001 > /dev/null 2>&1; then
-        echo "   Killing process on port 3001..."
-        kill -9 $(lsof -ti:3001) 2>/dev/null || true
-    fi
-
-    echo -e "${GREEN}   ✓ Ports cleaned up${NC}"
-}
-
-# Function to check if PostgreSQL is running
-check_postgres() {
-    echo -e "${YELLOW}🐘 Checking PostgreSQL...${NC}"
-
-    # Check if PostgreSQL is running via pg_isready
-    if command -v pg_isready &> /dev/null; then
-        if pg_isready -h localhost -p 5432 > /dev/null 2>&1; then
-            echo -e "${GREEN}   ✓ PostgreSQL is running${NC}"
-            return 0
-        fi
-    fi
-
-    # Check if Docker is available and try to start PostgreSQL container
-    if command -v docker &> /dev/null; then
-        echo "   Starting PostgreSQL via Docker..."
-
-        # Check if container already exists
-        if docker ps -a --format '{{.Names}}' | grep -q '^ai-meeting-postgres$'; then
-            docker start ai-meeting-postgres 2>/dev/null || true
-        else
-            # Create new PostgreSQL container
-            docker run -d \
-                --name ai-meeting-postgres \
-                -e POSTGRES_USER=postgres \
-                -e POSTGRES_PASSWORD=postgres \
-                -e POSTGRES_DB=ai_meeting_agent \
-                -p 5432:5432 \
-                postgres:15-alpine
-        fi
-
-        # Wait for PostgreSQL to be ready
-        echo "   Waiting for PostgreSQL to be ready..."
-        sleep 5
-
-        for i in {1..30}; do
-            if docker exec ai-meeting-postgres pg_isready -U postgres > /dev/null 2>&1; then
-                echo -e "${GREEN}   ✓ PostgreSQL is ready${NC}"
-                return 0
-            fi
-            sleep 1
-        done
-
-        echo -e "${RED}   ✗ PostgreSQL failed to start${NC}"
-        return 1
-    fi
-
-    echo -e "${RED}   ✗ PostgreSQL is not running and Docker is not available${NC}"
-    echo "   Please start PostgreSQL manually or install Docker"
-    return 1
-}
-
-# Function to install dependencies
-install_deps() {
-    echo -e "${YELLOW}📦 Installing dependencies...${NC}"
-
-    # Install backend dependencies
-    echo "   Installing backend dependencies..."
-    cd backend
-    npm install
-    cd ..
-
-    # Install frontend dependencies
-    echo "   Installing frontend dependencies..."
-    cd frontend
-    npm install
-    cd ..
-
-    echo -e "${GREEN}   ✓ Dependencies installed${NC}"
-}
-
-# Function to setup database
-setup_database() {
-    echo -e "${YELLOW}🗄️  Setting up database...${NC}"
-
-    cd backend
-
-    # Generate Prisma client
-    echo "   Generating Prisma client..."
-    npx prisma generate
-
-    # Push schema to database
-    echo "   Pushing schema to database..."
-    npx prisma db push --force-reset
-
-    # Seed the database
-    echo "   Seeding database with 15+ items per feature..."
-    npm run db:seed
-
-    cd ..
-
-    echo -e "${GREEN}   ✓ Database setup complete${NC}"
-}
-
-# Function to start services with hot reload
-start_services() {
-    echo -e "${YELLOW}🎯 Starting services with hot reload...${NC}"
-
-    # Start backend with tsx watch (hot reload)
-    echo "   Starting backend on port 3001 with hot reload..."
-    cd backend
-    npm run dev &
-    BACKEND_PID=$!
-    cd ..
-
-    # Wait for backend to start
-    sleep 3
-
-    # Start frontend with Vite (hot reload enabled by default)
-    echo "   Starting frontend on port 3000 with hot reload..."
-    cd frontend
-    npm run dev &
-    FRONTEND_PID=$!
-    cd ..
-
-    echo ""
-    echo -e "${GREEN}=================================="
-    echo "🎉 AI Meeting Agent is running!"
-    echo "==================================${NC}"
-    echo ""
-    echo -e "${BLUE}📱 Frontend: http://localhost:3000${NC}"
-    echo -e "${BLUE}🔧 Backend:  http://localhost:3001${NC}"
-    echo ""
-    echo -e "${YELLOW}Demo Credentials:${NC}"
-    echo "   Email:    demo@aimeetingagent.com"
-    echo "   Password: demo123"
-    echo ""
-    echo -e "${GREEN}🔄 Hot Reload Enabled:${NC}"
-    echo "   - Backend: tsx watch monitors file changes"
-    echo "   - Frontend: Vite HMR updates instantly"
-    echo ""
-    echo -e "${YELLOW}AI Features:${NC}"
-    echo "   - AI Transcriber"
-    echo "   - AI Note Summarizer"
-    echo "   - AI Action Item Extractor"
-    echo "   - AI Daily Planner"
-    echo "   - AI Decision Logger"
-    echo "   - AI Summary Generator"
-    echo "   - AI Follow-up Drafter"
-    echo ""
-    echo -e "Press ${RED}Ctrl+C${NC} to stop all services"
-    echo ""
-
-    # Wait for both processes
-    wait $BACKEND_PID $FRONTEND_PID
-}
-
-# Trap to cleanup on exit
-cleanup() {
-    echo ""
-    echo -e "${YELLOW}🛑 Shutting down...${NC}"
-    cleanup_ports
-    echo -e "${GREEN}✓ Goodbye!${NC}"
-    exit 0
-}
-
-trap cleanup SIGINT SIGTERM
-
-# Main execution
-main() {
-    # Change to project directory
-    cd "$(dirname "$0")"
-
-    # Check for .env file and copy to backend
-    if [ -f ".env" ]; then
-        cp .env backend/.env
-        echo -e "${GREEN}   ✓ Copied root .env to backend${NC}"
-    elif [ ! -f "backend/.env" ]; then
-        echo -e "${RED}Error: .env file not found!${NC}"
-        echo "Please create a .env file with your configuration."
-        echo ""
-        echo "Example .env content:"
-        echo "  DATABASE_URL=\"postgresql://postgres:postgres@localhost:5432/ai_meeting_agent\""
-        echo "  JWT_SECRET=\"your-secret-key\""
-        echo "  OPENROUTER_API_KEY=\"your-openrouter-api-key\""
-        echo "  OPENROUTER_MODEL=\"anthropic/claude-haiku-4.5\""
-        exit 1
-    fi
-
-    # Run setup steps
-    cleanup_ports
-    check_postgres
-    install_deps
-    setup_database
-    start_services
-}
-
-# Run main function
-main
+: "${BACKEND_PORT:?BACKEND_PORT is required}"
+: "${FRONTEND_PORT:?FRONTEND_PORT is required}"
+: "${DATABASE_URL:?DATABASE_URL is required}"
+: "${JWT_SECRET:?JWT_SECRET is required}"
+for runtime_port in "$BACKEND_PORT" "$FRONTEND_PORT"; do
+  [[ "$runtime_port" =~ ^[0-9]+$ ]] && [ "$runtime_port" -ge 1 ] && [ "$runtime_port" -le 65535 ] || { printf 'Assigned ports must be integers between 1 and 65535.\n' >&2; exit 1; }
+  lsof -nP -iTCP:"$runtime_port" -sTCP:LISTEN >/dev/null 2>&1 && { printf 'Assigned port %s is already in use.\n' "$runtime_port" >&2; exit 1; }
+done
+export BACKEND_PORT FRONTEND_PORT
+exec node src/main.js
