@@ -57,6 +57,12 @@ export function createApp() {
       if (req.method === 'GET' && url.pathname === '/api/health') {
         return json(res, 200, { status: 'ok', service: 'ai-meeting-agent', scope: 'minimal-local-boundary' });
       }
+      if (req.method === 'GET' && url.pathname === '/api/auth/demo-credentials') {
+        if (process.env.NODE_ENV === 'production') return json(res, 404, { error: 'not found' });
+        const email = process.env.DEMO_EMAIL || process.env.PROVISION_ADMIN_EMAIL || process.env.ADMIN_EMAIL;
+        const password = process.env.DEMO_PASSWORD || process.env.PROVISION_ADMIN_PASSWORD || process.env.ADMIN_PASSWORD;
+        return email && password ? json(res, 200, { email, password }) : json(res, 503, { error: 'Demo credentials are not configured' });
+      }
       if (req.method === 'POST' && url.pathname === '/api/auth/login') {
         const body = await readJson(req);
         const session = await login(body.email, body.password);
