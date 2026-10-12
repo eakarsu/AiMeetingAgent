@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import api from '../api/axios';
+import AIReport from '../components/AIReport';
 import {
   SparklesIcon,
   ChartBarIcon,
@@ -16,6 +17,11 @@ interface ToolField {
   hint?: string;
 }
 
+interface ToolPreset {
+  label: string;
+  values: Record<string, string>;
+}
+
 interface Tool {
   key: string;
   label: string;
@@ -23,7 +29,59 @@ interface Tool {
   endpoint: string;
   icon: React.ComponentType<{ className?: string }>;
   fields: ToolField[];
+  presets: ToolPreset[];
 }
+
+const meetingScenarios = [
+  {
+    label: 'Engineering sync',
+    title: 'Engineering delivery sync',
+    duration: '32',
+    attendees: '4',
+    transcript: 'Maya: The release candidate passed regression testing.\nNoah: The billing migration still needs a rollback owner.\nIris: I will document the rollback steps by Wednesday.\nMaya: Decision recorded: ship Thursday if the staging check passes.',
+  },
+  {
+    label: 'Customer review',
+    title: 'Northstar customer review',
+    duration: '45',
+    attendees: '5',
+    transcript: 'Avery: Adoption rose after the onboarding update.\nSam: Support volume is still high for role permissions.\nJordan: I will send the permission guide by Friday.\nAvery: We agreed to review support volume again in two weeks.',
+  },
+  {
+    label: 'Planning workshop',
+    title: 'Quarterly planning workshop',
+    duration: '60',
+    attendees: '6',
+    transcript: 'Priya: The quarter has capacity for two major initiatives.\nLuis: Reliability work should remain the first priority.\nChen: I can own the dependency map by next Tuesday.\nPriya: Consensus is to fund reliability and customer reporting first.',
+  },
+];
+
+const optimizerScenarios = [
+  {
+    label: 'Weekly delivery',
+    title: 'Weekly delivery review',
+    summaries: 'The team confirmed the release scope and assigned a rollback owner.\n---\nStaging passed, but billing monitoring still needs an alert threshold.\n---\nThe launch date remains Thursday pending the final readiness review.',
+    agenda: 'Review launch readiness\nConfirm billing alert threshold\nAssign post-launch coverage',
+    participants: 'maya@example.com, noah@example.com, iris@example.com',
+    cadence: 'weekly',
+  },
+  {
+    label: 'Customer success',
+    title: 'Biweekly customer success review',
+    summaries: 'Onboarding completion improved, while permission questions remained elevated.\n---\nThe team published a permission guide and identified two at-risk accounts.\n---\nExecutive reviews were scheduled for both at-risk accounts.',
+    agenda: 'Review account risk\nMeasure permission-guide impact\nConfirm executive review owners',
+    participants: 'avery@example.com, sam@example.com, jordan@example.com',
+    cadence: 'biweekly',
+  },
+  {
+    label: 'Leadership review',
+    title: 'Monthly operating review',
+    summaries: 'Leadership approved the reliability investment and requested a dependency map.\n---\nThe dependency map found one unresolved vendor approval.\n---\nFinance confirmed budget, subject to a signed vendor addendum.',
+    agenda: 'Resolve vendor approval\nReview budget variance\nConfirm next-month operating priorities',
+    participants: 'priya@example.com, luis@example.com, chen@example.com',
+    cadence: 'monthly',
+  },
+];
 
 const TOOLS: Tool[] = [
   {
@@ -36,7 +94,11 @@ const TOOLS: Tool[] = [
       { key: 'transcript', label: 'Transcript', type: 'textarea', required: true, placeholder: 'Paste meeting transcript' },
       { key: 'meetingTitle', label: 'Meeting Title', type: 'text' },
       { key: 'durationMinutes', label: 'Duration (minutes)', type: 'number' }
-    ]
+    ],
+    presets: meetingScenarios.map((scenario) => ({
+      label: scenario.label,
+      values: { transcript: scenario.transcript, meetingTitle: scenario.title, durationMinutes: scenario.duration },
+    })),
   },
   {
     key: 'participant-engagement-analyzer',
@@ -48,7 +110,11 @@ const TOOLS: Tool[] = [
       { key: 'transcript', label: 'Transcript', type: 'textarea', required: true, placeholder: 'Paste meeting transcript' },
       { key: 'meetingTitle', label: 'Meeting Title', type: 'text' },
       { key: 'expectedAttendees', label: 'Expected Attendees', type: 'number' }
-    ]
+    ],
+    presets: meetingScenarios.map((scenario) => ({
+      label: scenario.label,
+      values: { transcript: scenario.transcript, meetingTitle: scenario.title, expectedAttendees: scenario.attendees },
+    })),
   },
   {
     key: 'decision-consensus-check',
@@ -58,7 +124,8 @@ const TOOLS: Tool[] = [
     icon: SparklesIcon,
     fields: [
       { key: 'transcript', label: 'Transcript', type: 'textarea', required: true, placeholder: 'Paste meeting transcript' }
-    ]
+    ],
+    presets: meetingScenarios.map((scenario) => ({ label: scenario.label, values: { transcript: scenario.transcript } })),
   },
   {
     key: 'next-meeting-optimizer',
@@ -72,7 +139,17 @@ const TOOLS: Tool[] = [
       { key: 'upcomingAgendaDraft', label: 'Upcoming Agenda Draft (optional)', type: 'textarea' },
       { key: 'participants', label: 'Participants (comma-separated)', type: 'csv', placeholder: 'alice@x.com, bob@x.com' },
       { key: 'cadence', label: 'Cadence (weekly | biweekly | monthly | adhoc)', type: 'text', placeholder: 'weekly' }
-    ]
+    ],
+    presets: optimizerScenarios.map((scenario) => ({
+      label: scenario.label,
+      values: {
+        meetingSeriesTitle: scenario.title,
+        recentMeetingSummaries: scenario.summaries,
+        upcomingAgendaDraft: scenario.agenda,
+        participants: scenario.participants,
+        cadence: scenario.cadence,
+      },
+    })),
   }
 ];
 
@@ -164,6 +241,23 @@ export default function MeetingQualityTools() {
       <div className="bg-white rounded-lg border border-gray-200 p-6 max-w-3xl">
         <h2 className="text-lg font-semibold text-gray-900 mb-4">{tool.label}</h2>
         <form onSubmit={submit} className="space-y-4">
+          <div className="rounded-lg border border-indigo-100 bg-indigo-50 p-4">
+            <div className="text-sm font-semibold text-gray-900">Fill every field</div>
+            <p className="mt-1 text-xs text-gray-600">Each preset fills all required and optional fields for this tool.</p>
+            <div className="mt-3 flex flex-wrap gap-2">
+              {tool.presets.map((preset) => (
+                <button
+                  key={preset.label}
+                  type="button"
+                  disabled={loading}
+                  onClick={() => { setInputs(preset.values); setResult(null); setError(null); }}
+                  className="rounded-md border border-indigo-200 bg-white px-3 py-2 text-sm font-medium text-indigo-700 hover:bg-indigo-100 disabled:opacity-50"
+                >
+                  {preset.label}
+                </button>
+              ))}
+            </div>
+          </div>
           {tool.fields.map(field => (
             <div key={field.key}>
               <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -207,14 +301,7 @@ export default function MeetingQualityTools() {
           </div>
         )}
 
-        {result && (
-          <div className="mt-6 rounded-md bg-gray-50 border border-gray-200 p-4">
-            <h3 className="text-sm font-semibold text-gray-700 mb-2">Result</h3>
-            <pre className="text-xs text-gray-800 whitespace-pre-wrap break-words">
-              {typeof result === 'string' ? result : JSON.stringify(result, null, 2)}
-            </pre>
-          </div>
-        )}
+        {result && <AIReport response={result} title={tool.label} />}
       </div>
     </div>
   );

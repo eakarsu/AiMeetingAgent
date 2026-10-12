@@ -141,6 +141,14 @@ app.get('/api/version', (_req, res) => {
 });
 
 // Error handling middleware
+
+// Advisory AI reports only; native execution and approval routes stay unchanged.
+const aiWorkspaceSupport = require("../aiWorkspaceAdapters.cjs");
+const aiWorkspaceDatabase = aiWorkspaceSupport.prismaQueryClient(prisma);
+app.use('/api/report-workspace', require("../aiWorkspace.cjs").createAIWorkspaceRouter({
+  pool: aiWorkspaceDatabase, authenticateToken: require("./middleware/auth").authenticateToken,
+  aiRateLimiter: aiWorkspaceSupport.createWorkspaceLimiter(), features: require("../aiWorkspaceFeatures.json"),
+}));
 app.use((err: any, req: express.Request, res: express.Response, next: express.NextFunction) => {
   console.error(err.stack);
   res.status(500).json({ error: 'Something went wrong!' });

@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import api from '../api/axios';
+import AIReport from '../components/AIReport';
 import {
   SparklesIcon,
   PaperAirplaneIcon,
@@ -150,6 +151,19 @@ Robert Chang: One more item — the board has approved our Series B extension. W
 Catherine Wells: Excellent. That gives us additional runway for the European expansion. Let's wrap up. Key decisions: 2024 budget approved at $42 million, engineering compensation bands increased by 15%, hiring target set at 210 by year-end. Michael, proceed with the M&A evaluation. Next board meeting is January 15th.`
 };
 
+const chatPresets = [
+  { label: 'Action plan', value: 'Create a concise action plan from a product review. Include owners, due dates, dependencies, unresolved questions, and the three highest-priority next steps. Clearly label assumptions.' },
+  { label: 'Meeting audit', value: 'Explain how to audit a recurring leadership meeting for decision quality, balanced participation, unresolved dissent, and follow-through. Return a practical checklist.' },
+  { label: 'Follow-up strategy', value: 'Draft a professional strategy for following up after a customer escalation meeting. Include audience, timing, key facts to confirm, risks, and an approval checkpoint before sending.' },
+];
+
+const analysisPresets = [
+  { key: 'engineering', label: 'Engineering Standup', format: 'detailed', color: 'bg-blue-50 text-blue-700 hover:bg-blue-100 border-blue-200' },
+  { key: 'sales', label: 'Sales Review', format: 'executive', color: 'bg-green-50 text-green-700 hover:bg-green-100 border-green-200' },
+  { key: 'project', label: 'Project Planning', format: 'bullet', color: 'bg-purple-50 text-purple-700 hover:bg-purple-100 border-purple-200' },
+  { key: 'executive', label: 'Executive Board', format: 'email', color: 'bg-orange-50 text-orange-700 hover:bg-orange-100 border-orange-200' },
+];
+
 export default function AIAssistant() {
   const [message, setMessage] = useState('');
   const [transcript, setTranscript] = useState('');
@@ -270,11 +284,7 @@ export default function AIAssistant() {
 
     switch (response.type) {
       case 'chat':
-        return (
-          <div className="prose prose-sm max-w-none">
-            <div className="whitespace-pre-wrap text-gray-800 leading-relaxed">{response.data}</div>
-          </div>
-        );
+        return <AIReport response={response.data} title="AI assistant response" />;
 
       case 'summary':
         const summary = response.data;
@@ -520,11 +530,11 @@ export default function AIAssistant() {
                 <EnvelopeIcon className="h-5 w-5 text-green-600" />
                 Follow-up Draft
               </h3>
-              <div className="bg-gradient-to-r from-green-50 to-emerald-50 rounded-xl p-6 border border-green-100">
-                <div className="whitespace-pre-wrap text-gray-700 leading-relaxed">
-                  {typeof followUp === 'string' ? followUp : JSON.stringify(followUp, null, 2)}
+              {typeof followUp === 'string' ? (
+                <div className="bg-gradient-to-r from-green-50 to-emerald-50 rounded-xl p-6 border border-green-100">
+                  <div className="whitespace-pre-wrap text-gray-700 leading-relaxed">{followUp}</div>
                 </div>
-              </div>
+              ) : <AIReport response={followUp} title="Follow-up draft" />}
             </div>
           );
         }
@@ -906,13 +916,7 @@ export default function AIAssistant() {
         );
 
       default:
-        return (
-          <div className="bg-gray-50 rounded-xl p-6">
-            <pre className="whitespace-pre-wrap text-gray-700 text-sm">
-              {typeof response.data === 'string' ? response.data : JSON.stringify(response.data, null, 2)}
-            </pre>
-          </div>
-        );
+        return <AIReport response={response.data} title="AI result" />;
     }
   };
 
@@ -946,6 +950,23 @@ export default function AIAssistant() {
           <div className="card">
             <h2 className="font-semibold text-gray-900 mb-4">Ask AI Assistant</h2>
             <form onSubmit={handleChat} className="space-y-4">
+              <div className="rounded-lg border border-indigo-100 bg-indigo-50 p-4">
+                <div className="text-sm font-semibold text-gray-900">Complete prompt examples</div>
+                <p className="mt-1 text-xs text-gray-600">Choose an editable example before sending it.</p>
+                <div className="mt-3 flex flex-wrap gap-2">
+                  {chatPresets.map((preset) => (
+                    <button
+                      key={preset.label}
+                      type="button"
+                      disabled={loading}
+                      onClick={() => { setMessage(preset.value); setResponse(null); }}
+                      className="rounded-md border border-indigo-200 bg-white px-3 py-2 text-sm font-medium text-indigo-700 hover:bg-indigo-100 disabled:opacity-50"
+                    >
+                      {preset.label}
+                    </button>
+                  ))}
+                </div>
+              </div>
               <textarea
                 className="input"
                 rows={6}
@@ -1002,19 +1023,16 @@ export default function AIAssistant() {
             <div className="mb-4">
               <p className="text-sm text-gray-500 mb-2 flex items-center gap-1">
                 <BeakerIcon className="h-4 w-4" />
-                Load sample transcript:
+                Fill transcript and summary format:
               </p>
               <div className="flex flex-wrap gap-2">
-                {[
-                  { key: 'engineering', label: 'Engineering Standup', color: 'bg-blue-50 text-blue-700 hover:bg-blue-100 border-blue-200' },
-                  { key: 'sales', label: 'Sales Review', color: 'bg-green-50 text-green-700 hover:bg-green-100 border-green-200' },
-                  { key: 'project', label: 'Project Planning', color: 'bg-purple-50 text-purple-700 hover:bg-purple-100 border-purple-200' },
-                  { key: 'executive', label: 'Executive Board', color: 'bg-orange-50 text-orange-700 hover:bg-orange-100 border-orange-200' },
-                ].map((sample) => (
+                {analysisPresets.map((sample) => (
                   <button
                     key={sample.key}
-                    onClick={() => setTranscript(sampleTranscripts[sample.key])}
-                    className={`px-3 py-1.5 text-sm font-medium rounded-lg border transition-colors ${sample.color}`}
+                    type="button"
+                    disabled={loading}
+                    onClick={() => { setTranscript(sampleTranscripts[sample.key]); setSelectedFormat(sample.format); setResponse(null); }}
+                    className={`px-3 py-1.5 text-sm font-medium rounded-lg border transition-colors disabled:opacity-50 ${sample.color}`}
                   >
                     {sample.label}
                   </button>

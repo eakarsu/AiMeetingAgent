@@ -1,0 +1,322 @@
+[
+  {
+    "name": "GapAgentic",
+    "id": "gap-agentic",
+    "title": "Agentic",
+    "description": "Prepare a professional advisory report for agentic using the brief and evidence you provide. Review the findings, assumptions, and action plan before applying changes.",
+    "samples": [
+      {
+        "label": "Scenario",
+        "value": "Run Agentic for a realistic customer case.\nContext: a team needs a practical recommendation based on incomplete operating data.\nGoal: identify the best action, key risks, missing information, and expected business impact.\nReturn: summary, prioritized action plan, assumptions, and follow-up questions."
+      },
+      {
+        "label": "Data sample",
+        "value": "Analyze this Agentic data sample.\nInput records:\n- Record 1: urgent, customer impact high, owner unassigned\n- Record 2: medium priority, blocked by missing data\n- Record 3: recurring issue, automation opportunity\nReturn structured findings, anomalies, recommendations, and confidence."
+      },
+      {
+        "label": "Executive review",
+        "value": "Prepare an executive review for Agentic.\nAudience: business owner, operations lead, and implementation team.\nInclude impact, risk, estimated effort, decision points, and a concise next-step plan."
+      }
+    ]
+  },
+  {
+    "name": "GapAutonomous",
+    "id": "gap-autonomous",
+    "title": "Autonomous",
+    "description": "Prepare a professional advisory report for autonomous using the brief and evidence you provide. Review the findings, assumptions, and action plan before applying changes.",
+    "samples": [
+      {
+        "label": "Scenario",
+        "value": "Run Autonomous for a realistic customer case.\nContext: a team needs a practical recommendation based on incomplete operating data.\nGoal: identify the best action, key risks, missing information, and expected business impact.\nReturn: summary, prioritized action plan, assumptions, and follow-up questions."
+      },
+      {
+        "label": "Data sample",
+        "value": "Analyze this Autonomous data sample.\nInput records:\n- Record 1: urgent, customer impact high, owner unassigned\n- Record 2: medium priority, blocked by missing data\n- Record 3: recurring issue, automation opportunity\nReturn structured findings, anomalies, recommendations, and confidence."
+      },
+      {
+        "label": "Executive review",
+        "value": "Prepare an executive review for Autonomous.\nAudience: business owner, operations lead, and implementation team.\nInclude impact, risk, estimated effort, decision points, and a concise next-step plan."
+      }
+    ]
+  },
+  {
+    "name": "GapCompliance",
+    "id": "gap-compliance",
+    "title": "Compliance",
+    "description": "Prepare a professional advisory report for compliance using the brief and evidence you provide. Review the findings, assumptions, and action plan before applying changes.",
+    "samples": [
+      {
+        "label": "Scenario",
+        "value": "Run Compliance for a realistic customer case.\nContext: a team needs a practical recommendation based on incomplete operating data.\nGoal: identify the best action, key risks, missing information, and expected business impact.\nReturn: summary, prioritized action plan, assumptions, and follow-up questions."
+      },
+      {
+        "label": "Data sample",
+        "value": "Analyze this Compliance data sample.\nInput records:\n- Record 1: urgent, customer impact high, owner unassigned\n- Record 2: medium priority, blocked by missing data\n- Record 3: recurring issue, automation opportunity\nReturn structured findings, anomalies, recommendations, and confidence."
+      },
+      {
+        "label": "Executive review",
+        "value": "Prepare an executive review for Compliance.\nAudience: business owner, operations lead, and implementation team.\nInclude impact, risk, estimated effort, decision points, and a concise next-step plan."
+      }
+    ]
+  },
+  {
+    "name": "GapDecisionConsensusCheck",
+    "id": "gap-decision-consensus-check",
+    "title": "Decision Consensus Check",
+    "description": "Prepare a professional advisory report for decision consensus check using the brief and evidence you provide. Review the findings, assumptions, and action plan before applying changes.",
+    "samples": [
+      {
+        "label": "Scenario",
+        "value": "Run Decision Consensus Check for a realistic customer case.\nContext: a team needs a practical recommendation based on incomplete operating data.\nGoal: identify the best action, key risks, missing information, and expected business impact.\nReturn: summary, prioritized action plan, assumptions, and follow-up questions."
+      },
+      {
+        "label": "Data sample",
+        "value": "Analyze this Decision Consensus Check data sample.\nInput records:\n- Record 1: urgent, customer impact high, owner unassigned\n- Record 2: medium priority, blocked by missing data\n- Record 3: recurring issue, automation opportunity\nReturn structured findings, anomalies, recommendations, and confidence."
+      },
+      {
+        "label": "Executive review",
+        "value": "Prepare an executive review for Decision Consensus Check.\nAudience: business owner, operations lead, and implementation team.\nInclude impact, risk, estimated effort, decision points, and a concise next-step plan."
+      }
+    ]
+  },
+  {
+    "name": "GapFullText",
+    "id": "gap-full-text",
+    "title": "Full Text",
+    "description": "Prepare a professional advisory report for full text using the brief and evidence you provide. Review the findings, assumptions, and action plan before applying changes.",
+    "samples": [
+      {
+        "label": "Scenario",
+        "value": "Run Full Text for a realistic customer case.\nContext: a team needs a practical recommendation based on incomplete operating data.\nGoal: identify the best action, key risks, missing information, and expected business impact.\nReturn: summary, prioritized action plan, assumptions, and follow-up questions."
+      },
+      {
+        "label": "Data sample",
+        "value": "Analyze this Full Text data sample.\nInput records:\n- Record 1: urgent, customer impact high, owner unassigned\n- Record 2: medium priority, blocked by missing data\n- Record 3: recurring issue, automation opportunity\nReturn structured findings, anomalies, recommendations, and confidence."
+      },
+      {
+        "label": "Executive review",
+        "value": "Prepare an executive review for Full Text.\nAudience: business owner, operations lead, and implementation team.\nInclude impact, risk, estimated effort, decision points, and a concise next-step plan."
+      }
+    ]
+  },
+  {
+    "name": "GapInMeeting",
+    "id": "gap-in-meeting",
+    "title": "In Meeting",
+    "description": "Prepare a professional advisory report for in meeting using the brief and evidence you provide. Review the findings, assumptions, and action plan before applying changes.",
+    "samples": [
+      {
+        "label": "Scenario",
+        "value": "Run In Meeting for a realistic customer case.\nContext: a team needs a practical recommendation based on incomplete operating data.\nGoal: identify the best action, key risks, missing information, and expected business impact.\nReturn: summary, prioritized action plan, assumptions, and follow-up questions."
+      },
+      {
+        "label": "Data sample",
+        "value": "Analyze this In Meeting data sample.\nInput records:\n- Record 1: urgent, customer impact high, owner unassigned\n- Record 2: medium priority, blocked by missing data\n- Record 3: recurring issue, automation opportunity\nReturn structured findings, anomalies, recommendations, and confidence."
+      },
+      {
+        "label": "Executive review",
+        "value": "Prepare an executive review for In Meeting.\nAudience: business owner, operations lead, and implementation team.\nInclude impact, risk, estimated effort, decision points, and a concise next-step plan."
+      }
+    ]
+  },
+  {
+    "name": "GapLongTerm",
+    "id": "gap-long-term",
+    "title": "Long Term",
+    "description": "Prepare a professional advisory report for long term using the brief and evidence you provide. Review the findings, assumptions, and action plan before applying changes.",
+    "samples": [
+      {
+        "label": "Scenario",
+        "value": "Run Long Term for a realistic customer case.\nContext: a team needs a practical recommendation based on incomplete operating data.\nGoal: identify the best action, key risks, missing information, and expected business impact.\nReturn: summary, prioritized action plan, assumptions, and follow-up questions."
+      },
+      {
+        "label": "Data sample",
+        "value": "Analyze this Long Term data sample.\nInput records:\n- Record 1: urgent, customer impact high, owner unassigned\n- Record 2: medium priority, blocked by missing data\n- Record 3: recurring issue, automation opportunity\nReturn structured findings, anomalies, recommendations, and confidence."
+      },
+      {
+        "label": "Executive review",
+        "value": "Prepare an executive review for Long Term.\nAudience: business owner, operations lead, and implementation team.\nInclude impact, risk, estimated effort, decision points, and a concise next-step plan."
+      }
+    ]
+  },
+  {
+    "name": "GapMeetingQualityScore",
+    "id": "gap-meeting-quality-score",
+    "title": "Meeting Quality Score",
+    "description": "Prepare a professional advisory report for meeting quality score using the brief and evidence you provide. Review the findings, assumptions, and action plan before applying changes.",
+    "samples": [
+      {
+        "label": "Scenario",
+        "value": "Run Meeting Quality Score for a realistic customer case.\nContext: a team needs a practical recommendation based on incomplete operating data.\nGoal: identify the best action, key risks, missing information, and expected business impact.\nReturn: summary, prioritized action plan, assumptions, and follow-up questions."
+      },
+      {
+        "label": "Data sample",
+        "value": "Analyze this Meeting Quality Score data sample.\nInput records:\n- Record 1: urgent, customer impact high, owner unassigned\n- Record 2: medium priority, blocked by missing data\n- Record 3: recurring issue, automation opportunity\nReturn structured findings, anomalies, recommendations, and confidence."
+      },
+      {
+        "label": "Executive review",
+        "value": "Prepare an executive review for Meeting Quality Score.\nAudience: business owner, operations lead, and implementation team.\nInclude impact, risk, estimated effort, decision points, and a concise next-step plan."
+      }
+    ]
+  },
+  {
+    "name": "GapMobile",
+    "id": "gap-mobile",
+    "title": "Mobile",
+    "description": "Prepare a professional advisory report for mobile using the brief and evidence you provide. Review the findings, assumptions, and action plan before applying changes.",
+    "samples": [
+      {
+        "label": "Scenario",
+        "value": "Run Mobile for a realistic customer case.\nContext: a team needs a practical recommendation based on incomplete operating data.\nGoal: identify the best action, key risks, missing information, and expected business impact.\nReturn: summary, prioritized action plan, assumptions, and follow-up questions."
+      },
+      {
+        "label": "Data sample",
+        "value": "Analyze this Mobile data sample.\nInput records:\n- Record 1: urgent, customer impact high, owner unassigned\n- Record 2: medium priority, blocked by missing data\n- Record 3: recurring issue, automation opportunity\nReturn structured findings, anomalies, recommendations, and confidence."
+      },
+      {
+        "label": "Executive review",
+        "value": "Prepare an executive review for Mobile.\nAudience: business owner, operations lead, and implementation team.\nInclude impact, risk, estimated effort, decision points, and a concise next-step plan."
+      }
+    ]
+  },
+  {
+    "name": "GapMultiModal",
+    "id": "gap-multi-modal",
+    "title": "Multi Modal",
+    "description": "Prepare a professional advisory report for multi modal using the brief and evidence you provide. Review the findings, assumptions, and action plan before applying changes.",
+    "samples": [
+      {
+        "label": "Scenario",
+        "value": "Run Multi Modal for a realistic customer case.\nContext: a team needs a practical recommendation based on incomplete operating data.\nGoal: identify the best action, key risks, missing information, and expected business impact.\nReturn: summary, prioritized action plan, assumptions, and follow-up questions."
+      },
+      {
+        "label": "Data sample",
+        "value": "Analyze this Multi Modal data sample.\nInput records:\n- Record 1: urgent, customer impact high, owner unassigned\n- Record 2: medium priority, blocked by missing data\n- Record 3: recurring issue, automation opportunity\nReturn structured findings, anomalies, recommendations, and confidence."
+      },
+      {
+        "label": "Executive review",
+        "value": "Prepare an executive review for Multi Modal.\nAudience: business owner, operations lead, and implementation team.\nInclude impact, risk, estimated effort, decision points, and a concise next-step plan."
+      }
+    ]
+  },
+  {
+    "name": "GapNextMeetingOptimizer",
+    "id": "gap-next-meeting-optimizer",
+    "title": "Next Meeting Optimizer",
+    "description": "Prepare a professional advisory report for next meeting optimizer using the brief and evidence you provide. Review the findings, assumptions, and action plan before applying changes.",
+    "samples": [
+      {
+        "label": "Scenario",
+        "value": "Run Next Meeting Optimizer for a realistic customer case.\nContext: a team needs a practical recommendation based on incomplete operating data.\nGoal: identify the best action, key risks, missing information, and expected business impact.\nReturn: summary, prioritized action plan, assumptions, and follow-up questions."
+      },
+      {
+        "label": "Data sample",
+        "value": "Analyze this Next Meeting Optimizer data sample.\nInput records:\n- Record 1: urgent, customer impact high, owner unassigned\n- Record 2: medium priority, blocked by missing data\n- Record 3: recurring issue, automation opportunity\nReturn structured findings, anomalies, recommendations, and confidence."
+      },
+      {
+        "label": "Executive review",
+        "value": "Prepare an executive review for Next Meeting Optimizer.\nAudience: business owner, operations lead, and implementation team.\nInclude impact, risk, estimated effort, decision points, and a concise next-step plan."
+      }
+    ]
+  },
+  {
+    "name": "GapOutlook",
+    "id": "gap-outlook",
+    "title": "Outlook",
+    "description": "Prepare a professional advisory report for outlook using the brief and evidence you provide. Review the findings, assumptions, and action plan before applying changes.",
+    "samples": [
+      {
+        "label": "Scenario",
+        "value": "Run Outlook for a realistic customer case.\nContext: a team needs a practical recommendation based on incomplete operating data.\nGoal: identify the best action, key risks, missing information, and expected business impact.\nReturn: summary, prioritized action plan, assumptions, and follow-up questions."
+      },
+      {
+        "label": "Data sample",
+        "value": "Analyze this Outlook data sample.\nInput records:\n- Record 1: urgent, customer impact high, owner unassigned\n- Record 2: medium priority, blocked by missing data\n- Record 3: recurring issue, automation opportunity\nReturn structured findings, anomalies, recommendations, and confidence."
+      },
+      {
+        "label": "Executive review",
+        "value": "Prepare an executive review for Outlook.\nAudience: business owner, operations lead, and implementation team.\nInclude impact, risk, estimated effort, decision points, and a concise next-step plan."
+      }
+    ]
+  },
+  {
+    "name": "GapParticipantEngagementAnalyzer",
+    "id": "gap-participant-engagement-analyzer",
+    "title": "Participant Engagement Analyzer",
+    "description": "Prepare a professional advisory report for participant engagement analyzer using the brief and evidence you provide. Review the findings, assumptions, and action plan before applying changes.",
+    "samples": [
+      {
+        "label": "Scenario",
+        "value": "Run Participant Engagement Analyzer for a realistic customer case.\nContext: a team needs a practical recommendation based on incomplete operating data.\nGoal: identify the best action, key risks, missing information, and expected business impact.\nReturn: summary, prioritized action plan, assumptions, and follow-up questions."
+      },
+      {
+        "label": "Data sample",
+        "value": "Analyze this Participant Engagement Analyzer data sample.\nInput records:\n- Record 1: urgent, customer impact high, owner unassigned\n- Record 2: medium priority, blocked by missing data\n- Record 3: recurring issue, automation opportunity\nReturn structured findings, anomalies, recommendations, and confidence."
+      },
+      {
+        "label": "Executive review",
+        "value": "Prepare an executive review for Participant Engagement Analyzer.\nAudience: business owner, operations lead, and implementation team.\nInclude impact, risk, estimated effort, decision points, and a concise next-step plan."
+      }
+    ]
+  },
+  {
+    "name": "GapStreaming",
+    "id": "gap-streaming",
+    "title": "Streaming",
+    "description": "Prepare a professional advisory report for streaming using the brief and evidence you provide. Review the findings, assumptions, and action plan before applying changes.",
+    "samples": [
+      {
+        "label": "Scenario",
+        "value": "Run Streaming for a realistic customer case.\nContext: a team needs a practical recommendation based on incomplete operating data.\nGoal: identify the best action, key risks, missing information, and expected business impact.\nReturn: summary, prioritized action plan, assumptions, and follow-up questions."
+      },
+      {
+        "label": "Data sample",
+        "value": "Analyze this Streaming data sample.\nInput records:\n- Record 1: urgent, customer impact high, owner unassigned\n- Record 2: medium priority, blocked by missing data\n- Record 3: recurring issue, automation opportunity\nReturn structured findings, anomalies, recommendations, and confidence."
+      },
+      {
+        "label": "Executive review",
+        "value": "Prepare an executive review for Streaming.\nAudience: business owner, operations lead, and implementation team.\nInclude impact, risk, estimated effort, decision points, and a concise next-step plan."
+      }
+    ]
+  },
+  {
+    "name": "GapVerticalSpecific",
+    "id": "gap-vertical-specific",
+    "title": "Vertical Specific",
+    "description": "Prepare a professional advisory report for vertical specific using the brief and evidence you provide. Review the findings, assumptions, and action plan before applying changes.",
+    "samples": [
+      {
+        "label": "Scenario",
+        "value": "Run Vertical Specific for a realistic customer case.\nContext: a team needs a practical recommendation based on incomplete operating data.\nGoal: identify the best action, key risks, missing information, and expected business impact.\nReturn: summary, prioritized action plan, assumptions, and follow-up questions."
+      },
+      {
+        "label": "Data sample",
+        "value": "Analyze this Vertical Specific data sample.\nInput records:\n- Record 1: urgent, customer impact high, owner unassigned\n- Record 2: medium priority, blocked by missing data\n- Record 3: recurring issue, automation opportunity\nReturn structured findings, anomalies, recommendations, and confidence."
+      },
+      {
+        "label": "Executive review",
+        "value": "Prepare an executive review for Vertical Specific.\nAudience: business owner, operations lead, and implementation team.\nInclude impact, risk, estimated effort, decision points, and a concise next-step plan."
+      }
+    ]
+  },
+  {
+    "name": "GapVideo",
+    "id": "gap-video",
+    "title": "Video",
+    "description": "Prepare a professional advisory report for video using the brief and evidence you provide. Review the findings, assumptions, and action plan before applying changes.",
+    "samples": [
+      {
+        "label": "Scenario",
+        "value": "Run Video for a realistic customer case.\nContext: a team needs a practical recommendation based on incomplete operating data.\nGoal: identify the best action, key risks, missing information, and expected business impact.\nReturn: summary, prioritized action plan, assumptions, and follow-up questions."
+      },
+      {
+        "label": "Data sample",
+        "value": "Analyze this Video data sample.\nInput records:\n- Record 1: urgent, customer impact high, owner unassigned\n- Record 2: medium priority, blocked by missing data\n- Record 3: recurring issue, automation opportunity\nReturn structured findings, anomalies, recommendations, and confidence."
+      },
+      {
+        "label": "Executive review",
+        "value": "Prepare an executive review for Video.\nAudience: business owner, operations lead, and implementation team.\nInclude impact, risk, estimated effort, decision points, and a concise next-step plan."
+      }
+    ]
+  }
+]

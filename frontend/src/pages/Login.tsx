@@ -1,9 +1,12 @@
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import api from '../api/axios';
 
 export default function Login() {
+  const demoLoginLock = useRef(false);
+  const [demoLoginBusy, setDemoLoginBusy] = useState(false);
+
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
@@ -26,16 +29,29 @@ export default function Login() {
     }
   };
 
-  const populateDemoCredentials = async () => {
+  const handleDemoLogin = async () => {
+    if (demoLoginLock.current) return;
+    demoLoginLock.current = true;
+    setDemoLoginBusy(true);
+    setError('');
     try {
       const response = await api.get('/auth/demo-credentials');
-      setEmail(response.data.email);
-      setPassword(response.data.password);
-    } catch {
-      setEmail('demo@aimeetingagent.com');
-      setPassword('demo123');
+      const credentials = response.data;
+      if (typeof credentials?.email !== 'string' || !credentials.email || typeof credentials?.password !== 'string' || !credentials.password) {
+        throw new Error('Demo credentials are unavailable.');
+      }
+      setEmail(credentials.email);
+      setPassword(credentials.password);
+      await login(credentials.email, credentials.password);
+      navigate('/');
+    } catch (err: any) {
+      setError(err.response?.data?.error || err.message || 'Demo credentials are unavailable. Try again shortly.');
+    } finally {
+      demoLoginLock.current = false;
+      setDemoLoginBusy(false);
     }
   };
+
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-primary-600 to-primary-800 px-4">
@@ -99,17 +115,18 @@ export default function Login() {
 
           <div className="mt-6 pt-6 border-t border-gray-200">
             <button
+              disabled={demoLoginBusy || loading}
               type="button"
-              onClick={populateDemoCredentials}
+              onClick={handleDemoLogin}
               className="w-full btn-secondary py-3 flex items-center justify-center gap-2"
             >
               <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
               </svg>
-              Auto Fill Demo Credentials
+              {demoLoginBusy ? 'Logging in as Demo…' : 'Log In as Demo'}
             </button>
             <p className="text-center text-xs text-gray-500 mt-3">
-              Click to auto-fill demo account credentials
+              Log in with the available native demo account
             </p>
           </div>
         </div>

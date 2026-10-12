@@ -39,7 +39,7 @@
       <label>Email<input id="email" name="email" type="email" autocomplete="username" required placeholder="Enter your email" /></label>
       <label>Password<input id="password" name="password" type="password" autocomplete="current-password" required placeholder="Enter your password" /></label>
       <div class="actions">
-        <button id="autofill" type="button">Auto Fill Demo Credentials</button>
+        <button id="autofill" type="button">Log In as Demo</button>
         <button class="primary" type="submit">Sign In</button>
       </div>
     </form>
@@ -78,6 +78,7 @@
       password.value = data.password;
       email.dispatchEvent(new Event('input', { bubbles: true }));
       password.dispatchEvent(new Event('input', { bubbles: true }));
+      document.querySelector('form').requestSubmit();
     } catch (error) {
       errorView.textContent = error.message;
       errorView.hidden = false;

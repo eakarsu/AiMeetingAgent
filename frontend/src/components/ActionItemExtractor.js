@@ -1,15 +1,33 @@
 import { useState } from 'react';
 import api from '../api/axios';
 
-const SAMPLE = `Kickoff meeting notes.
+const actionPresets = [
+  {
+    label: 'Kickoff',
+    transcript: `Kickoff meeting notes.
 Sarah will draft the proposal by Friday.
 John needs to review the analytics dashboard by 2026-05-25.
 Mike should schedule a follow-up with the client by next week.
-Action: Sarah to send the contract to legal by tomorrow.
-We discussed the roadmap but no decisions were made.`;
+Action: Sarah to send the contract to legal by tomorrow.`,
+  },
+  {
+    label: 'Engineering sync',
+    transcript: `Maya: The release candidate passed testing.
+Noah will define the billing alert threshold by Wednesday.
+Iris will verify the rollback checklist before Thursday launch.
+Action: Maya to publish the launch decision after the final staging check.`,
+  },
+  {
+    label: 'Customer review',
+    transcript: `Avery: Permission questions remain the largest support issue.
+Sam will send the revised permission guide to Northstar by Friday.
+Jordan will schedule an executive review for the two at-risk accounts by October 18.
+Action: Avery to measure support volume again in two weeks.`,
+  },
+];
 
 export default function ActionItemExtractor() {
-  const [transcript, setTranscript] = useState(SAMPLE);
+  const [transcript, setTranscript] = useState(actionPresets[0].transcript);
   const [rows, setRows] = useState([]);
   const [loading, setLoading] = useState(false);
   const [err, setErr] = useState('');
@@ -40,6 +58,22 @@ export default function ActionItemExtractor() {
   return (
     <div className="bg-white rounded-lg shadow p-4">
       <h3 className="text-lg font-semibold mb-3">Action Item Extractor</h3>
+      <div className="mb-3 rounded-lg border border-indigo-100 bg-indigo-50 p-3">
+        <div className="text-sm font-semibold text-gray-900">Complete transcript examples</div>
+        <div className="mt-2 flex flex-wrap gap-2">
+          {actionPresets.map((preset) => (
+            <button
+              key={preset.label}
+              type="button"
+              disabled={loading}
+              onClick={() => { setTranscript(preset.transcript); setRows([]); setErr(''); }}
+              className="rounded-md border border-indigo-200 bg-white px-3 py-2 text-sm font-medium text-indigo-700 hover:bg-indigo-100 disabled:opacity-50"
+            >
+              {preset.label}
+            </button>
+          ))}
+        </div>
+      </div>
       <label className="block text-sm font-medium text-gray-700 mb-1">
         Paste meeting transcript
       </label>

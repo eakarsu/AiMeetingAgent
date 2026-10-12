@@ -27,6 +27,12 @@ interface MeetingStatus {
   transcript: Array<{ speaker: string; text: string; timestamp: string }>;
 }
 
+const meetingPresets = [
+  { label: 'Zoom standup', url: 'https://zoom.us/j/11122233344', title: 'Example weekly engineering standup' },
+  { label: 'Google Meet review', url: 'https://meet.google.com/abc-defg-hij', title: 'Example customer success review' },
+  { label: 'Teams planning', url: 'https://teams.microsoft.com/l/meetup-join/example-planning-session', title: 'Example quarterly planning workshop' },
+];
+
 export default function JoinMeeting() {
   const [meetingUrl, setMeetingUrl] = useState('');
   const [meetingTitle, setMeetingTitle] = useState('');
@@ -60,7 +66,7 @@ export default function JoinMeeting() {
 
   // Poll for status when meeting is active
   useEffect(() => {
-    let interval: NodeJS.Timeout;
+    let interval: ReturnType<typeof setTimeout>;
     if (activeMeeting) {
       interval = setInterval(async () => {
         try {
@@ -206,6 +212,23 @@ export default function JoinMeeting() {
             )}
 
             <div className="space-y-4">
+              <div className="rounded-lg border border-indigo-100 bg-indigo-50 p-4">
+                <div className="text-sm font-semibold text-gray-900">Fill every field</div>
+                <p className="mt-1 text-xs text-gray-600">These editable examples fill the required URL and optional title. Review the link before joining.</p>
+                <div className="mt-3 flex flex-wrap gap-2">
+                  {meetingPresets.map((preset) => (
+                    <button
+                      key={preset.label}
+                      type="button"
+                      disabled={loading}
+                      onClick={() => { setMeetingUrl(preset.url); setMeetingTitle(preset.title); setError(''); }}
+                      className="rounded-md border border-indigo-200 bg-white px-3 py-2 text-sm font-medium text-indigo-700 hover:bg-indigo-100 disabled:opacity-50"
+                    >
+                      {preset.label}
+                    </button>
+                  ))}
+                </div>
+              </div>
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">Meeting URL *</label>
                 <div className="relative">

@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import api from '../api/axios';
+import AIReport from '../components/AIReport';
 import { format } from 'date-fns';
 import {
   ArrowLeftIcon,
@@ -82,7 +83,9 @@ export default function InsightDetail() {
                 <DocumentTextIcon className="h-5 w-5 text-blue-600" />
                 Summary {parsed.format && `(${parsed.format})`}
               </h3>
-              <p className="text-gray-700 whitespace-pre-wrap leading-relaxed">{parsed.summary || JSON.stringify(parsed)}</p>
+              {parsed.summary ? (
+                <p className="text-gray-700 whitespace-pre-wrap leading-relaxed">{parsed.summary}</p>
+              ) : <AIReport response={parsed} title="Summary" />}
             </div>
             {parsed.keyPoints?.length > 0 && (
               <div className="bg-white rounded-xl p-5 border">
@@ -434,14 +437,7 @@ export default function InsightDetail() {
         );
 
       default:
-        // Unknown type — render as readable text
-        return (
-          <div className="bg-gradient-to-br from-gray-50 to-slate-50 rounded-xl p-6 border">
-            <div className="whitespace-pre-wrap text-gray-700 leading-relaxed">
-              {typeof parsed === 'string' ? parsed : JSON.stringify(parsed, null, 2)}
-            </div>
-          </div>
-        );
+        return <AIReport response={parsed} title={getTypeConfig(insight.type).label} />;
     }
   };
 

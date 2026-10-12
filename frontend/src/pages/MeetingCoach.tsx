@@ -15,6 +15,21 @@ interface CoachReport {
   createdAt: string;
 }
 
+const coachPresets = [
+  {
+    label: 'Balanced review',
+    transcript: 'Maya: The release candidate passed all checks.\nNoah: Billing monitoring still needs an alert threshold.\nIris: I will set the threshold today and document the rollback path.\nMaya: We will launch Thursday if the final check remains green.',
+  },
+  {
+    label: 'Dominant speaker',
+    transcript: 'Avery: I will walk through every account update and decide the response plan. The first account is stable, the second needs outreach, and the third needs an executive review.\nSam: Can we confirm the owners?\nAvery: I will assign them after this meeting and send the complete plan.\nJordan: I can own the second account outreach.',
+  },
+  {
+    label: 'Interrupted decision',
+    transcript: 'Priya: The team has capacity for two initiatives, and reliability should be first --\nLuis: Customer reporting has the larger immediate commitment.\nChen: We need the dependency map before choosing.\nPriya: Agreed. Chen will deliver the map Tuesday, then we will decide Wednesday.',
+  },
+];
+
 export default function MeetingCoach() {
   const [reports, setReports] = useState<CoachReport[]>([]);
   const [meetings, setMeetings] = useState<any[]>([]);
@@ -83,6 +98,23 @@ export default function MeetingCoach() {
 
       <form onSubmit={analyze} className="card p-4 space-y-3">
         <h2 className="font-semibold">Analyse a meeting</h2>
+        <div className="rounded-lg border border-indigo-100 bg-indigo-50 p-4">
+          <div className="text-sm font-semibold text-gray-900">Fill every field</div>
+          <p className="mt-1 text-xs text-gray-600">Each preset selects an existing meeting and fills the optional transcript. Presets are disabled until a meeting is available.</p>
+          <div className="mt-3 flex flex-wrap gap-2">
+            {coachPresets.map((preset, index) => (
+              <button
+                key={preset.label}
+                type="button"
+                disabled={analyzing || meetings.length === 0}
+                onClick={() => { setSelectedMeetingId(meetings[index % meetings.length].id); setTranscript(preset.transcript); setError(null); }}
+                className="rounded-md border border-indigo-200 bg-white px-3 py-2 text-sm font-medium text-indigo-700 hover:bg-indigo-100 disabled:opacity-50"
+              >
+                {preset.label}
+              </button>
+            ))}
+          </div>
+        </div>
         <select
           className="input w-full"
           value={selectedMeetingId}
