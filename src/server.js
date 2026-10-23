@@ -4,6 +4,7 @@ import { randomUUID } from 'node:crypto';
 import { fileURLToPath } from 'node:url';
 import path from 'node:path';
 import { identity, login, saveAiResult } from './store.js';
+import { taskStore, toCsv, toSections, actionExtractor, meetingSummary, followupDraft } from './featurePack.js';
 
 const projectRoot = path.dirname(path.dirname(fileURLToPath(import.meta.url)));
 const indexPath = path.join(projectRoot, 'public', 'index.html');
@@ -81,6 +82,36 @@ export function createApp() {
         const result = await openRouterMeetingBrief(prompt);
         const id = await saveAiResult(user.id, { prompt }, result.output, result.model);
         return json(res, 200, { id, brief: result.output, model: result.model });
+      }
+      if (url.pathname === '/api/tasks/export' && req.method === 'GET') {
+        const user = await identity(bearer(req)); if (!user) return json(res, 401, { error: 'authentication required' });
+        const rows = taskStore.list(user.id, Object.fromEntries(url.searchParams));
+        if ((url.searchParams.get('format')||'json').toLowerCase()==='csv') { res.writeHead(200,{'Content-Type':'text/csv','Content-Disposition':'attachment; filename="tasks.csv"'}); return res.end(toCsv(rows)); }
+        return json(res, 200, { items: rows, total: rows.length, exportedAt: new Date().toISOString() });
+      }
+      if (url.pathname === '/api/tasks' && req.method === 'GET') {
+        const user = await identity(bearer(req)); if (!user) return json(res, 401, { error: 'authentication required' });
+        const rows = taskStore.list(user.id, Object.fromEntries(url.searchParams)); return json(res, 200, { items: rows, tasks: rows, total: rows.length });
+      }
+      if (url.pathname === '/api/tasks' && req.method === 'POST') {
+        const user = await identity(bearer(req)); if (!user) return json(res, 401, { error: 'authentication required' });
+        try { return json(res, 201, taskStore.create(user.id, await readJson(req))); } catch(e) { return json(res, e.status||400, {error:e.message}); }
+      }
+      const taskView = url.pathname.match(/^\/api\/tasks\/([^/]+)\/view$/);
+      if (taskView && req.method === 'GET') {
+        const user = await identity(bearer(req)); if (!user) return json(res, 401, { error: 'authentication required' });
+        const task = taskStore.get(user.id, taskView[1]); return task ? json(res, 200, {id:task.id,title:task.title,sections:toSections(task)}) : json(res, 404, {error:'not found'});
+      }
+      const taskId = url.pathname.match(/^\/api\/tasks\/([^/]+)$/);
+      if (taskId && (req.method === 'PUT' || req.method === 'PATCH')) {
+        const user = await identity(bearer(req)); if (!user) return json(res, 401, { error: 'authentication required' });
+        const task = taskStore.update(user.id, taskId[1], await readJson(req)); return task ? json(res, 200, task) : json(res, 404, {error:'not found'});
+      }
+      if (url.pathname.startsWith('/api/tasks/ai/') && req.method === 'POST') {
+        const user = await identity(bearer(req)); if (!user) return json(res, 401, { error: 'authentication required' });
+        const body = await readJson(req); const tasks = taskStore.list(user.id, {});
+        const fns = { 'action-extractor': actionExtractor, 'meeting-summary': meetingSummary, 'followup-draft': followupDraft };
+        const fn = fns[url.pathname.split('/').pop()]; return fn ? json(res, 200, fn(tasks, body)) : json(res, 404, {error:'not found'});
       }
       if (req.method === 'POST' && url.pathname === '/api/meetings') {
         const body = await readJson(req);
